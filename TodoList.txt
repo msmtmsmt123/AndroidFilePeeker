@@ -1,0 +1,26 @@
+查看应用的本地文件系统
+解决没有root的手机无法查看自己应用中data下文件的问题
+
+功能：
+    list 列出目录下的所有应用
+    get 获取文件内容
+        data/sharedPref/Database
+    查看文件属性
+    修改文件内容
+    添加删除文件(夹)
+
+
+android端功能：
+    lib库
+连接模式：
+    wifi连接
+    adb直连
+    Service AIDL 手机应用连接
+    当前应用内查看
+文件查看部分（根据协议不同，可以是任意形式）
+    APP内部插件 内部
+    apk独立应用 aidl（当前手机），wifi（其他手机）
+    pc端命令行 wifi，adb
+    pc端界面应用模式 wifi，adb
+    浏览器浏览 wifi（服务器模式）
+    浏览器插件
