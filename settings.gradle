@@ -1,1 +1,1 @@
-include ':PeekerDemo'
+include ':PeekerDemo', ':FilePeeker'
