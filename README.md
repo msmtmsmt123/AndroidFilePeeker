@@ -1,0 +1,2 @@
+# AndroidFilePeeker
+在没有root的手机上浏览管理当前应用的私有文件
