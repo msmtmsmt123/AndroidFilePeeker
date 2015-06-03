@@ -14,24 +14,10 @@
  * limitations under the License.
  */
 
-package com.cyanflxy.peekerdemo;
+package com.cyanflxy.filepeeker;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-
-import com.cyanflxy.peekerui.FileBrowserActivity;
-
-
-public class MainActivity extends Activity {
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        startActivity(new Intent(this, FileBrowserActivity.class));
-        finish();
-    }
-
+/**
+ * Created by CyanFlxy on 2015/6/3.
+ */
+public class FileUtils {
 }

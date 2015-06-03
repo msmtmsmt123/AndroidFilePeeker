@@ -18,9 +18,12 @@ package com.cyanflxy.peekerdemo;
 
 import android.app.Application;
 
+import com.cyanflxy.filepeeker.FilePeeker;
 import com.facebook.stetho.Stetho;
 
 /**
+ * 初始化FilePeeker
+ *
  * Created by CyanFlxy on 2015/6/3.
  */
 public class MyApplication extends Application {
@@ -35,5 +38,6 @@ public class MyApplication extends Application {
                         .enableWebKitInspector(
                                 Stetho.defaultInspectorModulesProvider(this))
                         .build());
+        FilePeeker.init(this);
     }
 }
