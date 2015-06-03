@@ -13,23 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cyanflxy.filepeeker;
 
-import android.content.Context;
+package com.cyanflxy.peekerdemo;
 
-import java.io.File;
-import java.util.Arrays;
+import android.app.Application;
+
+import com.facebook.stetho.Stetho;
 
 /**
- * 入口
- * Created by CyanFlxy on 2015/6/1.
+ * Created by CyanFlxy on 2015/6/3.
  */
-public class FilePeeker {
-    public static void listFile(Context c) {
-        File f = c.getFilesDir().getParentFile();
-        System.out.println(f.getAbsolutePath());
-        System.out.println(Arrays.toString(f.list()));
+public class MyApplication extends Application {
 
-
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Stetho.initialize(
+                Stetho.newInitializerBuilder(this)
+                        .enableDumpapp(
+                                Stetho.defaultDumperPluginsProvider(this))
+                        .enableWebKitInspector(
+                                Stetho.defaultInspectorModulesProvider(this))
+                        .build());
     }
 }

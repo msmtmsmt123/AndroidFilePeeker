@@ -1,3 +1,22 @@
+实现远程File类的功能
+数据传递格式：json
+    容易解析，方便扩展
+    Gson gson = new Gson();
+    return gson.fromJson(jsonStr, LoginBean.class);
+
+通信流程
+    用户UI命令->组装为json->进行通信->解析json为命令->产生结果->组装成json->进行通信->解析json为数据->界面展示
+
+层次化表示
+          命令层          用户UI命令                    产生结果                      界面展示
+          表示层              组装为json     解析json为命令   组装成json    解析json为数据
+          通信层                      进行通信                       进行通信
+
+
+
+
+
+
 当前项目：
 1. lib库，负责处理对当前应用下私有文件的访问请求
 2. 界面库，负责显示文件目录结构 - 访问需求依赖于lib（请不要在代码中直接访问私有文件）
