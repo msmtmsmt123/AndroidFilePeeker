@@ -17,6 +17,7 @@
 package com.cyanflxy.filepeeker;
 
 /**
+ * 工具类
  * Created by CyanFlxy on 2015/6/3.
  */
 public class FileUtils {
