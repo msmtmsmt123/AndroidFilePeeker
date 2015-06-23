@@ -1,2 +1,12 @@
 <resources>
+    <string name="peeker_ui">私有文件</string>
+    <string name="private_files">私有文件</string>
+    <string name="path">路径：</string>
+
+    <string name="create_file">新建文件</string>
+    <string name="create_folder">新建文件夹</string>
+
+    <string name="input_file_name">请输入文件名</string>
+    <string name="input_folder_name">请输入文件夹名</string>
+
 </resources>

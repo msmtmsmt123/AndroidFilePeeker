@@ -18,7 +18,7 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:paddingEnd="10dp"
     android:paddingLeft="10dp"
     android:paddingStart="10dp">
@@ -27,10 +27,12 @@
         android:id="@+id/file_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:layout_marginBottom="10dp"
         android:layout_marginTop="10dp"
         android:ellipsize="end"
         android:singleLine="true"
+        android:text="@string/peeker_ui"
         android:textColor="#000000"
         android:textSize="18sp"/>
 </RelativeLayout>
