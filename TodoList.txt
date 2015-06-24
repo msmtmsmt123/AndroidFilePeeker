@@ -1,3 +1,6 @@
+实现pc端使用adb连接模式查看
+
+
 实现远程File类的功能
 数据传递格式：json
     容易解析，方便扩展
@@ -49,3 +52,12 @@ android端功能：
     pc端界面应用模式 wifi，adb
     浏览器浏览 wifi（服务器模式）
     浏览器插件
+
+借此学习以下内容
+aidl连接
+adb连接与数据传输
+socket连接
+android端小型html服务器
+ListView优化封装
+android各种界面特性
+架构设计

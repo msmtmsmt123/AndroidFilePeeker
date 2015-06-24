@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.cyanflxy.peekerdemo;
+package com.cyanflxy.filepeeker.demo;
 
 import android.app.Application;
 

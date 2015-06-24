@@ -14,4 +14,23 @@
  * limitations under the License.
  */
 
-include ':PeekerDemo', ':FilePeeker', ':PeekerUI', 'SocketConnectClient', 'ConnectionBridge'
+package com.cyanflxy.filepeeker.socket.client;
+
+/**
+ * 读取命令行参数，并引导用户使用该工具
+ * <p/>
+ * Created by CyanFlxy on 2015/6/24.
+ */
+public class CommandManager {
+    public CommandManager() {
+
+    }
+
+    public void showUsage() {
+
+    }
+
+    public void readCommand() {
+        System.out.print(">");
+    }
+}

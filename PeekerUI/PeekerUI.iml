@@ -89,5 +89,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="gson-2.3.1" level="project" />
     <orderEntry type="module" module-name="FilePeeker" exported="" />
+    <orderEntry type="module" module-name="ConnectionBridge" exported="" />
   </component>
 </module>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.cyanflxy.peekerui;
+package com.cyanflxy.filepeeker.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -29,6 +29,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.cyanflxy.filepeeker.FilePeeker;
+import com.cyanflxy.peekerui.R;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -51,6 +52,84 @@ public class FileBrowserActivity extends Activity {
     private View mMenuView;
 
     private FileListAdapter mAdapter;
+    private AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+            File file = (File) mAdapter.getItem(position);
+            if (file.isFile()) {
+                // TODO 文件处理办法
+            } else {
+                enterSubPath(file.getName());
+            }
+        }
+    };
+    private OnClickListener mOnMenuClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (mMenuView.getVisibility() == View.VISIBLE) {
+                hideMenu();
+            } else {
+                showMenu();
+            }
+        }
+    };
+    private OnClickListener mOnMenuZoneClick = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            hideMenu();
+        }
+    };
+    private OnClickListener mOnCreateFileClick = new OnClickListener() {
+        private InputDialog mDialog;
+
+        @Override
+        public void onClick(View v) {
+            hideMenu();
+
+            if (mDialog == null) {
+                mDialog = new InputDialog(FileBrowserActivity.this);
+                mDialog.setTitle(R.string.input_file_name);
+                mDialog.setOnTextResultListener(new InputDialog.OnTextResultListener() {
+                    @Override
+                    public void onTextResult(String result) {
+                        createFile(result);
+                    }
+                });
+            }
+
+            mDialog.show();
+        }
+    };
+    private OnClickListener mOnCreateFolderClick = new OnClickListener() {
+        private InputDialog mDialog;
+
+        @Override
+        public void onClick(View v) {
+            hideMenu();
+
+            if (mDialog == null) {
+                mDialog = new InputDialog(FileBrowserActivity.this);
+                mDialog.setTitle(R.string.input_folder_name);
+                mDialog.setOnTextResultListener(new InputDialog.OnTextResultListener() {
+                    @Override
+                    public void onTextResult(String result) {
+                        createFolder(result);
+                    }
+                });
+            }
+
+            mDialog.show();
+        }
+    };
+    private OnClickListener mOnUplevelClickListener = new OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            uplevel();
+        }
+    };
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -139,11 +218,17 @@ public class FileBrowserActivity extends Activity {
     }
 
     private void createFile(String fileName) {
-
+        FilePeeker.createFile(mCurrentPath, fileName);
+        refreshFileList();
     }
 
     private void createFolder(String folderName) {
+        FilePeeker.createFolder(mCurrentPath, folderName);
+        refreshFileList();
+    }
 
+    private void refreshFileList() {
+        mAdapter.setData(FilePeeker.listFiles(mCurrentPath));
     }
 
     private void showMenu() {
@@ -153,90 +238,6 @@ public class FileBrowserActivity extends Activity {
     private void hideMenu() {
         mMenuView.setVisibility(View.GONE);
     }
-
-    private AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
-
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-            File file = (File) mAdapter.getItem(position);
-            if (file.isFile()) {
-                // TODO 文件处理办法
-            } else {
-                enterSubPath(file.getName());
-            }
-        }
-    };
-
-    private OnClickListener mOnMenuClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (mMenuView.getVisibility() == View.VISIBLE) {
-                hideMenu();
-            } else {
-                showMenu();
-            }
-        }
-    };
-
-    private OnClickListener mOnMenuZoneClick = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            hideMenu();
-        }
-    };
-
-    private OnClickListener mOnCreateFileClick = new OnClickListener() {
-        private InputDialog mDialog;
-
-        @Override
-        public void onClick(View v) {
-            hideMenu();
-
-            if (mDialog == null) {
-                mDialog = new InputDialog(FileBrowserActivity.this);
-                mDialog.setTitle(R.string.input_file_name);
-                mDialog.setOnTextResultListener(new InputDialog.OnTextResultListener() {
-                    @Override
-                    public void onTextResult(String result) {
-                        createFile(result);
-                    }
-                });
-            }
-
-            mDialog.show();
-        }
-    };
-
-    private OnClickListener mOnCreateFolderClick = new OnClickListener() {
-        private InputDialog mDialog;
-
-        @Override
-        public void onClick(View v) {
-            hideMenu();
-
-            if (mDialog == null) {
-                mDialog = new InputDialog(FileBrowserActivity.this);
-                mDialog.setTitle(R.string.input_folder_name);
-                mDialog.setOnTextResultListener(new InputDialog.OnTextResultListener() {
-                    @Override
-                    public void onTextResult(String result) {
-                        createFolder(result);
-                    }
-                });
-            }
-
-            mDialog.show();
-        }
-    };
-
-    private OnClickListener mOnUplevelClickListener = new OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-            uplevel();
-        }
-    };
 
     private class FileListAdapter extends BaseAdapter {
 

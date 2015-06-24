@@ -18,7 +18,10 @@ package com.cyanflxy.filepeeker;
 
 import android.content.Context;
 
+import com.cyanflxy.filepeeker.socket.adb.AdbServer;
+
 import java.io.File;
+import java.io.IOException;
 
 /**
  * 入口
@@ -29,6 +32,9 @@ public class FilePeeker {
 
     public static void init(Context c) {
         sLocalFileDir = c.getFilesDir().getParent();
+        // c.getDir(name,mode);//这种方法获取的文件夹路径会导致名称前添加app_前缀
+
+        AdbServer.start();
     }
 
     /**
@@ -40,5 +46,34 @@ public class FilePeeker {
     public static File[] listFiles(String dir) {
         File file = new File(sLocalFileDir, dir);
         return file.listFiles();
+    }
+
+    public static boolean createFile(String dir, String fileName) {
+        File file = new File(sLocalFileDir, dir);
+        if (!file.exists()) {
+            if (!file.mkdirs()) {
+                return false;
+            }
+        }
+
+        file = new File(file, fileName);
+        try {
+            return file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean createFolder(String dir, String folderName) {
+        File file = new File(sLocalFileDir, dir);
+        if (!file.exists()) {
+            if (!file.mkdirs()) {
+                return false;
+            }
+        }
+
+        file = new File(file, folderName);
+        return file.mkdir();
     }
 }

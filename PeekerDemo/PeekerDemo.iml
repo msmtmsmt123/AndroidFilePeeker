@@ -92,5 +92,6 @@
     <orderEntry type="library" exported="" name="commons-cli-1.2" level="project" />
     <orderEntry type="module" module-name="PeekerUI" exported="" />
     <orderEntry type="module" module-name="FilePeeker" exported="" />
+    <orderEntry type="module" module-name="ConnectionBridge" exported="" />
   </component>
 </module>

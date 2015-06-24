@@ -14,4 +14,24 @@
  * limitations under the License.
  */
 
-include ':PeekerDemo', ':FilePeeker', ':PeekerUI', 'SocketConnectClient', 'ConnectionBridge'
+package com.cyanflxy.filepeeker.demo;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+
+import com.cyanflxy.filepeeker.ui.FileBrowserActivity;
+import com.cyanflxy.peekerdemo.R;
+
+public class MainActivity extends Activity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        startActivity(new Intent(this, FileBrowserActivity.class));
+        finish();
+    }
+
+}

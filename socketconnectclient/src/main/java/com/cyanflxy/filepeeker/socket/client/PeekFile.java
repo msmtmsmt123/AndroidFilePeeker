@@ -14,4 +14,20 @@
  * limitations under the License.
  */
 
-include ':PeekerDemo', ':FilePeeker', ':PeekerUI', 'SocketConnectClient', 'ConnectionBridge'
+package com.cyanflxy.filepeeker.socket.client;
+
+import java.net.Socket;
+
+/**
+ * PC端通信入口
+ * <p/>
+ * Created by CyanFlxy on 2015/6/24.
+ */
+public class PeekFile {
+    public static void main(String[] args) {
+        AdbConnect connect = new AdbConnect("com.cyanflxy.peekerdemo");
+        Socket socket = connect.getConnectionSocket();
+        SocketCommunicate communicate = new SocketCommunicate(socket);
+        communicate.start();
+    }
+}
