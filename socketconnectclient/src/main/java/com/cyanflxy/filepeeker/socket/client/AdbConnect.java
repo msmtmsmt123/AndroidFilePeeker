@@ -31,17 +31,17 @@ import java.net.UnknownHostException;
 public class AdbConnect {
 
     private final String mPkgName;
-    private final int mPort;
+    private final int mLocalPort;
 
     public AdbConnect(String pkgName) {
         mPkgName = pkgName;
-        mPort = ConnectionUtils.getAdbConnectPort(mPkgName);
+        mLocalPort = ConnectionUtils.getAdbPort(mPkgName);
     }
 
     public Socket getConnectionSocket() {
         try {
-            System.out.println("Connect to " + mPkgName + " @port:" + mPort);
-            Runtime.getRuntime().exec(String.format("adb forward tcp:%d tcp:%d", mPort, mPort));
+            System.out.println("Connect to " + mPkgName + " @LocalPort:" + mLocalPort+" @RemotePort:"+mLocalPort);
+            Runtime.getRuntime().exec(String.format("adb forward tcp:%d tcp:%d", mLocalPort, mLocalPort));
         } catch (IOException e) {
             e.printStackTrace();
 
@@ -60,7 +60,7 @@ public class AdbConnect {
         }
 
         try {
-            return new Socket(inetAddress, mPort);
+            return new Socket(inetAddress, mLocalPort);
         } catch (IOException e) {
             e.printStackTrace();
 

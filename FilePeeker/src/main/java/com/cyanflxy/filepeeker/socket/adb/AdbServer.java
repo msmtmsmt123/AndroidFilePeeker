@@ -16,14 +16,14 @@
 
 package com.cyanflxy.filepeeker.socket.adb;
 
+import android.util.Log;
+
 import com.cyanflxy.filepeeker.FilePeeker;
-import com.cyanflxy.filepeeker.bridge.Command;
 import com.cyanflxy.filepeeker.bridge.ConnectionUtils;
-import com.cyanflxy.filepeeker.bridge.Response;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -68,7 +68,7 @@ public class AdbServer {
     private class AcceptThread implements Runnable {
         @Override
         public void run() {
-            int port = ConnectionUtils.getAdbConnectPort(FilePeeker.packageName);
+            int port = ConnectionUtils.getAdbPort(FilePeeker.packageName);
             ServerSocket mServerSocket;
             try {
                 mServerSocket = new ServerSocket(port);
@@ -80,57 +80,58 @@ public class AdbServer {
             while (true) {
                 Socket clientSocket;
                 try {
+                    Log.i("xyq", "Listen Socket @port:" + port);
                     clientSocket = mServerSocket.accept();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e("xyq", "Listen Socket Exception", e);
                     return;
                 }
 
-                ReceiveThread mReceiveThread = new ReceiveThread(clientSocket);
-                executorService.execute(mReceiveThread);
+                Receiver receiver = new Receiver(clientSocket);
+                executorService.execute(receiver);
             }
         }
     }
 
-    private class ReceiveThread extends Thread {
-        private ObjectInputStream inputStream;
-        private ObjectOutputStream outputStream;
+    private class Receiver implements Runnable {
+        private InputStream inputStream;
+        private OutputStream outputStream;
 
-        ReceiveThread(Socket s) {
+        public Receiver(Socket socket) {
             try {
-                // 获得输入流
-                inputStream = new ObjectInputStream(s.getInputStream());
-                outputStream = new ObjectOutputStream(s.getOutputStream());
+                inputStream = socket.getInputStream();
+                outputStream = socket.getOutputStream();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
         }
 
         @Override
         public void run() {
             while (true) {
-                Command command = null;
+                byte[] buff = new byte[128];
                 try {
-                    command = (Command) inputStream.readObject();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
+                    int len = inputStream.read(buff);
+                    String str = new String(buff, 0, len);
+                    Log.i("xyq", "Receive:" + str);
                 } catch (IOException e) {
                     e.printStackTrace();
+                    Log.i("xyq", "Receive exception", e);
                     break;
                 }
 
-                Response response = new Response();
-                response.code = Response.CODE_UNKNOWN_COMMAND;
-                response.message = "Unknown Command";
 
                 try {
-                    outputStream.writeObject(response);
+                    Log.i("xyq", "Send Message");
+                    outputStream.write("Unsupported Command".getBytes());
                 } catch (IOException e) {
                     e.printStackTrace();
+                    Log.i("xyq", "Send exception", e);
                     break;
                 }
+
             }
-
         }
     }
 }

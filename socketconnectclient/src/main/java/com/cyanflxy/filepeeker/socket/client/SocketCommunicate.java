@@ -17,11 +17,10 @@
 package com.cyanflxy.filepeeker.socket.client;
 
 import com.cyanflxy.filepeeker.bridge.Command;
-import com.cyanflxy.filepeeker.bridge.Response;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
 /**
@@ -31,8 +30,8 @@ import java.net.Socket;
  */
 public class SocketCommunicate {
     private Socket mSocket;
-    private ObjectInputStream mInputStream;
-    private ObjectOutputStream mOutputStream;
+    private InputStream mInputStream;
+    private OutputStream mOutputStream;
 
     private String mCurrentDir;
 
@@ -40,8 +39,9 @@ public class SocketCommunicate {
         mCurrentDir = "/";
         mSocket = socket;
         try {
-            mInputStream = new ObjectInputStream(mSocket.getInputStream());
-            mOutputStream = new ObjectOutputStream(mSocket.getOutputStream());
+            mInputStream = (mSocket.getInputStream());
+//            mOutputStream = new ObjectOutputStream(mSocket.getOutputStream());
+            mOutputStream = mSocket.getOutputStream();
         } catch (IOException e) {
             e.printStackTrace();
 
@@ -85,7 +85,7 @@ public class SocketCommunicate {
     private void executeCommand(String cmd) {
         Command command = new Command(cmd, mCurrentDir);
         try {
-            mOutputStream.writeObject(command);
+            mOutputStream.write(command.command.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
 
@@ -94,13 +94,12 @@ public class SocketCommunicate {
         }
 
         try {
-            Response response = (Response) mInputStream.readObject();
-            System.out.println(response.message);
+            byte[] bytes = new byte[128];
+            int len = mInputStream.read(bytes);
+            System.out.println(new String(bytes, 0, len));
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("read from socket error!");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         }
     }
 
@@ -112,6 +111,6 @@ public class SocketCommunicate {
                         + "mkdir <dir>                - make a new dir in current folder\n"
                         + "create <file>              - make a new file in current folder\n"
                         + "exit                       - exit this program\n"
-                        + "help                       - show this help message\nhello");
+                        + "help                       - show this help message\n");
     }
 }

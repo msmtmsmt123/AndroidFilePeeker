@@ -26,14 +26,14 @@ public class ConnectionUtils {
      * @param pkgName 正在准备进行连接的包名
      * @return 连接端口号
      */
-    public static int getAdbConnectPort(String pkgName) {
+    public static int getAdbPort(String pkgName) {
         // 找了个靠近65536的质数，并添加公用端口号偏移
         return pkgName.hashCode() % 64451 + 1048;
     }
 
-    public static int getNetConnectPort(String pkgName) {
-        return getAdbConnectPort(pkgName) + 7;
-    }
+//    public static int getNetConnectPort(String pkgName) {
+//        return getAdbPortForPhone(pkgName) + 7;
+//    }
 
 
 }
