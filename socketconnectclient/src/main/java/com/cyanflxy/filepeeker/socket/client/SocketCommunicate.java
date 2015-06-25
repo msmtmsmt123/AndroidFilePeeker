@@ -16,6 +16,12 @@
 
 package com.cyanflxy.filepeeker.socket.client;
 
+import com.cyanflxy.filepeeker.bridge.Command;
+import com.cyanflxy.filepeeker.bridge.Response;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 /**
@@ -25,15 +31,87 @@ import java.net.Socket;
  */
 public class SocketCommunicate {
     private Socket mSocket;
-    private CommandManager mCommandManager;
+    private ObjectInputStream mInputStream;
+    private ObjectOutputStream mOutputStream;
+
+    private String mCurrentDir;
 
     public SocketCommunicate(Socket socket) {
+        mCurrentDir = "/";
         mSocket = socket;
-        mCommandManager = new CommandManager();
+        try {
+            mInputStream = new ObjectInputStream(mSocket.getInputStream());
+            mOutputStream = new ObjectOutputStream(mSocket.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            System.err.println("Open Socket Stream Error.");
+            System.exit(1);
+        }
     }
 
     public void start() {
+        while (true) {
+            System.out.print(">");
+            String cmd = readCommandLineString();
 
-        mCommandManager.readCommand();
+            if ("exit".equals(cmd)) {
+                break;
+            } else if ("help".equals(cmd)) {
+                printUsage();
+            } else {
+                executeCommand(cmd);
+            }
+        }
+
+        try {
+            mSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String readCommandLineString() {
+        try {
+            byte[] buff = new byte[128];
+            int len = System.in.read(buff);
+            return new String(buff, 0, len - 1);//过滤掉最后的回车号
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void executeCommand(String cmd) {
+        Command command = new Command(cmd, mCurrentDir);
+        try {
+            mOutputStream.writeObject(command);
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            System.err.println("write to socket error!");
+            return;
+        }
+
+        try {
+            Response response = (Response) mInputStream.readObject();
+            System.out.println(response.message);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("read from socket error!");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void printUsage() {
+        System.out.print(
+                "Peek Android Private File:\n"
+                        + "list                       - show all files in current folder\n"
+                        + "cd [dir]                   - change to dir or root dir\n"
+                        + "mkdir <dir>                - make a new dir in current folder\n"
+                        + "create <file>              - make a new file in current folder\n"
+                        + "exit                       - exit this program\n"
+                        + "help                       - show this help message\nhello");
     }
 }

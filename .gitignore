@@ -14,6 +14,7 @@ gen/
 
 # Gradle files
 .gradle/
+gradle/
 build/
 /*/build/
 
@@ -30,3 +31,4 @@ proguard/
 .idea
 .DS_Store
 /captures
+TodoList.txt

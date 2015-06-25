@@ -28,10 +28,12 @@ import java.io.IOException;
  * Created by CyanFlxy on 2015/6/1.
  */
 public class FilePeeker {
-    private static String sLocalFileDir;
+    public static String localFileDir;
+    public static String packageName;
 
     public static void init(Context c) {
-        sLocalFileDir = c.getFilesDir().getParent();
+        localFileDir = c.getFilesDir().getParent();
+        packageName = c.getPackageName();
         // c.getDir(name,mode);//这种方法获取的文件夹路径会导致名称前添加app_前缀
 
         AdbServer.start();
@@ -44,12 +46,12 @@ public class FilePeeker {
      * @return dir下的所有文件(目录)
      */
     public static File[] listFiles(String dir) {
-        File file = new File(sLocalFileDir, dir);
+        File file = new File(localFileDir, dir);
         return file.listFiles();
     }
 
     public static boolean createFile(String dir, String fileName) {
-        File file = new File(sLocalFileDir, dir);
+        File file = new File(localFileDir, dir);
         if (!file.exists()) {
             if (!file.mkdirs()) {
                 return false;
@@ -66,7 +68,7 @@ public class FilePeeker {
     }
 
     public static boolean createFolder(String dir, String folderName) {
-        File file = new File(sLocalFileDir, dir);
+        File file = new File(localFileDir, dir);
         if (!file.exists()) {
             if (!file.mkdirs()) {
                 return false;

@@ -16,10 +16,14 @@
 
 package com.cyanflxy.filepeeker.socket.adb;
 
-import android.util.Log;
+import com.cyanflxy.filepeeker.FilePeeker;
+import com.cyanflxy.filepeeker.bridge.Command;
+import com.cyanflxy.filepeeker.bridge.ConnectionUtils;
+import com.cyanflxy.filepeeker.bridge.Response;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -64,9 +68,10 @@ public class AdbServer {
     private class AcceptThread implements Runnable {
         @Override
         public void run() {
+            int port = ConnectionUtils.getAdbConnectPort(FilePeeker.packageName);
             ServerSocket mServerSocket;
             try {
-                mServerSocket = new ServerSocket(12589);
+                mServerSocket = new ServerSocket(port);
             } catch (IOException e) {
                 e.printStackTrace();
                 return;
@@ -88,12 +93,14 @@ public class AdbServer {
     }
 
     private class ReceiveThread extends Thread {
-        private InputStream inputStream;
+        private ObjectInputStream inputStream;
+        private ObjectOutputStream outputStream;
 
         ReceiveThread(Socket s) {
             try {
                 // 获得输入流
-                inputStream = s.getInputStream();
+                inputStream = new ObjectInputStream(s.getInputStream());
+                outputStream = new ObjectOutputStream(s.getOutputStream());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -101,15 +108,27 @@ public class AdbServer {
 
         @Override
         public void run() {
-            byte[] buf = new byte[512];
+            while (true) {
+                Command command = null;
+                try {
+                    command = (Command) inputStream.readObject();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    break;
+                }
 
-            // 读取输入的数据(阻塞读)
-            try {
-                int len = inputStream.read(buf);
-                String str = new String(buf, 0, len);
-                Log.e("xyq", "Socket Read String:" + str);
-            } catch (IOException e1) {
-                e1.printStackTrace();
+                Response response = new Response();
+                response.code = Response.CODE_UNKNOWN_COMMAND;
+                response.message = "Unknown Command";
+
+                try {
+                    outputStream.writeObject(response);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    break;
+                }
             }
 
         }

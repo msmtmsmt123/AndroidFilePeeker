@@ -14,23 +14,32 @@
  * limitations under the License.
  */
 
-package com.cyanflxy.filepeeker.socket.client;
+package com.cyanflxy.filepeeker.bridge;
+
+import java.io.Serializable;
 
 /**
- * 读取命令行参数，并引导用户使用该工具
+ * 远程文件处理命令
  * <p/>
  * Created by CyanFlxy on 2015/6/24.
  */
-public class CommandManager {
-    public CommandManager() {
+public class Command implements Serializable {
+    public static final long serialVersionUID = 1L;
+
+    public String command;
+    public String currentDir;
+
+    public Command() {
 
     }
 
-    public void showUsage() {
-
+    public Command(String cmd, String dir) {
+        command = cmd;
+        currentDir = dir;
     }
 
-    public void readCommand() {
-        System.out.print(">");
+    @Override
+    public String toString() {
+        return "Command:" + command + " dir:" + currentDir;
     }
 }
