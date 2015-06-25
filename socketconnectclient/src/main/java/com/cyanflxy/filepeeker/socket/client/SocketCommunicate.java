@@ -17,10 +17,11 @@
 package com.cyanflxy.filepeeker.socket.client;
 
 import com.cyanflxy.filepeeker.bridge.Command;
+import com.cyanflxy.filepeeker.bridge.Response;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 /**
@@ -30,8 +31,8 @@ import java.net.Socket;
  */
 public class SocketCommunicate {
     private Socket mSocket;
-    private InputStream mInputStream;
-    private OutputStream mOutputStream;
+    private ObjectInputStream mInputStream;
+    private ObjectOutputStream mOutputStream;
 
     private String mCurrentDir;
 
@@ -39,9 +40,8 @@ public class SocketCommunicate {
         mCurrentDir = "/";
         mSocket = socket;
         try {
-            mInputStream = (mSocket.getInputStream());
-//            mOutputStream = new ObjectOutputStream(mSocket.getOutputStream());
-            mOutputStream = mSocket.getOutputStream();
+            mOutputStream = new ObjectOutputStream(mSocket.getOutputStream());
+            mInputStream = new ObjectInputStream(mSocket.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
 
@@ -85,7 +85,7 @@ public class SocketCommunicate {
     private void executeCommand(String cmd) {
         Command command = new Command(cmd, mCurrentDir);
         try {
-            mOutputStream.write(command.command.getBytes());
+            mOutputStream.writeObject(command);
         } catch (IOException e) {
             e.printStackTrace();
 
@@ -94,12 +94,11 @@ public class SocketCommunicate {
         }
 
         try {
-            byte[] bytes = new byte[128];
-            int len = mInputStream.read(bytes);
-            System.out.println(new String(bytes, 0, len));
-        } catch (IOException e) {
-            e.printStackTrace();
+            Response response = (Response) mInputStream.readObject();
+            System.out.println(response.message);
+        } catch (Exception e) {
             System.err.println("read from socket error!");
+            e.printStackTrace();
         }
     }
 

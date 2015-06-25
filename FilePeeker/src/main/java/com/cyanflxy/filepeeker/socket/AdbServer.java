@@ -14,20 +14,25 @@
  * limitations under the License.
  */
 
-package com.cyanflxy.filepeeker.socket.adb;
+package com.cyanflxy.filepeeker.socket;
 
 import android.util.Log;
 
 import com.cyanflxy.filepeeker.FilePeeker;
+import com.cyanflxy.filepeeker.bridge.Command;
 import com.cyanflxy.filepeeker.bridge.ConnectionUtils;
+import com.cyanflxy.filepeeker.bridge.Response;
 
+import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static com.cyanflxy.filepeeker.bridge.ConnectionUtils.TAG;
 
 /**
  * 监听adb连接
@@ -80,10 +85,10 @@ public class AdbServer {
             while (true) {
                 Socket clientSocket;
                 try {
-                    Log.i("xyq", "Listen Socket @port:" + port);
+                    Log.i(TAG, "Listen Socket @port:" + port);
                     clientSocket = mServerSocket.accept();
                 } catch (IOException e) {
-                    Log.e("xyq", "Listen Socket Exception", e);
+                    Log.e(TAG, "Listen Socket Exception", e);
                     return;
                 }
 
@@ -94,43 +99,55 @@ public class AdbServer {
     }
 
     private class Receiver implements Runnable {
-        private InputStream inputStream;
-        private OutputStream outputStream;
+        private Socket mSocket;
 
         public Receiver(Socket socket) {
-            try {
-                inputStream = socket.getInputStream();
-                outputStream = socket.getOutputStream();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            mSocket = socket;
 
         }
 
         @Override
         public void run() {
+            ObjectInputStream inputStream;
+            ObjectOutputStream outputStream;
+
+            try {
+                outputStream = new ObjectOutputStream(mSocket.getOutputStream());
+                inputStream = new ObjectInputStream(mSocket.getInputStream());
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.i(TAG, "Receiver Open Stream Error", e);
+                return;
+            }
+
             while (true) {
-                byte[] buff = new byte[128];
                 try {
-                    int len = inputStream.read(buff);
-                    String str = new String(buff, 0, len);
-                    Log.i("xyq", "Receive:" + str);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.i("xyq", "Receive exception", e);
+                    Command command = (Command) inputStream.readObject();
+                    Log.i(TAG, "Receive:" + command.command);
+                } catch (EOFException e) {
+                    break;
+                } catch (Exception e) {
+                    Log.i(TAG, "Receive exception", e);
                     break;
                 }
 
+                Response response = new Response();
+                response.code = Response.CODE_UNKNOWN_COMMAND;
+                response.message = "Unsupported Command";
 
                 try {
-                    Log.i("xyq", "Send Message");
-                    outputStream.write("Unsupported Command".getBytes());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.i("xyq", "Send exception", e);
+                    Log.i(TAG, "Send Message");
+                    outputStream.writeObject(response);
+                } catch (Exception e) {
+                    Log.i(TAG, "Send exception", e);
                     break;
                 }
+            }
 
+            try {
+                mSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }

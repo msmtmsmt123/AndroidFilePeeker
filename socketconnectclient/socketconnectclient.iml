@@ -28,6 +28,5 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="ConnectionBridge" exported="" />
-    <orderEntry type="library" exported="" name="SocketConnectClient.SocketConnectClient" level="project" />
   </component>
 </module>

@@ -18,7 +18,7 @@ package com.cyanflxy.filepeeker;
 
 import android.content.Context;
 
-import com.cyanflxy.filepeeker.socket.adb.AdbServer;
+import com.cyanflxy.filepeeker.socket.AdbServer;
 
 import java.io.File;
 import java.io.IOException;
