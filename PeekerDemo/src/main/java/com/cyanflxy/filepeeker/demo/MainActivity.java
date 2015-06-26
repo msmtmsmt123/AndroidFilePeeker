@@ -17,21 +17,32 @@
 package com.cyanflxy.filepeeker.demo;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
-import com.cyanflxy.filepeeker.ui.FileBrowserActivity;
+import com.cyanflxy.filepeeker.FilePeeker;
 import com.cyanflxy.peekerdemo.R;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements View.OnClickListener {
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        startActivity(new Intent(this, FileBrowserActivity.class));
-        finish();
+        findViewById(R.id.start_server).setOnClickListener(this);
+        findViewById(R.id.stop_server).setOnClickListener(this);
+
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.start_server:
+                break;
+            case R.id.stop_server:
+                break;
+        }
+    }
 }

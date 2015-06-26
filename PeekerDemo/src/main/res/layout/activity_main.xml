@@ -32,9 +32,16 @@
         android:text="@string/hello_world"/>
 
     <Button
-        android:id="@+id/show_files"
-        android:layout_width="wrap_content"
+        android:id="@+id/start_server"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:text="显示内如文件系统"/>
+        android:text="启动"/>
+
+    <Button
+        android:id="@+id/stop_server"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="关闭"/>
 
 </LinearLayout>

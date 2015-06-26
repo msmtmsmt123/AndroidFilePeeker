@@ -43,9 +43,9 @@ public class SocketCommunicate {
             mOutputStream = new ObjectOutputStream(mSocket.getOutputStream());
             mInputStream = new ObjectInputStream(mSocket.getInputStream());
         } catch (IOException e) {
+            System.err.println("Open Socket Stream Error.");
             e.printStackTrace();
 
-            System.err.println("Open Socket Stream Error.");
             System.exit(1);
         }
     }
@@ -87,15 +87,15 @@ public class SocketCommunicate {
         try {
             mOutputStream.writeObject(command);
         } catch (IOException e) {
-            e.printStackTrace();
-
             System.err.println("write to socket error!");
+            e.printStackTrace();
             return;
         }
 
         try {
             Response response = (Response) mInputStream.readObject();
             System.out.println(response.message);
+            System.out.println(response.data);
         } catch (Exception e) {
             System.err.println("read from socket error!");
             e.printStackTrace();

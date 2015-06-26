@@ -23,10 +23,12 @@ import com.facebook.stetho.Stetho;
 
 /**
  * 初始化FilePeeker
- *
+ * <p/>
  * Created by CyanFlxy on 2015/6/3.
  */
 public class MyApplication extends Application {
+
+    private FilePeeker filePeeker = new FilePeeker();
 
     @Override
     public void onCreate() {
@@ -38,6 +40,12 @@ public class MyApplication extends Application {
                         .enableWebKitInspector(
                                 Stetho.defaultInspectorModulesProvider(this))
                         .build());
-        FilePeeker.init(this);
+        filePeeker.start(this);
+    }
+
+    @Override
+    public void onTerminate() {
+        filePeeker.destroy();
+        super.onTerminate();
     }
 }

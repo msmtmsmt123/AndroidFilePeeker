@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-package com.cyanflxy.filepeeker.bridge;
+package com.cyanflxy.filepeeker.socket;
 
-import java.io.Serializable;
+import java.net.Socket;
 
-public class Response implements Serializable {
-    public static final long serialVersionUID = 1L;
-
-    public static final int CODE_SUCCESS = 0;
-    public static final int CODE_UNKNOWN_COMMAND = 101;
-
-    public int code;
-    public String message;
-    public Object data;
+public interface OnSocketAccept {
+    void socketAccept(SocketServer server, Socket socket);
 }
