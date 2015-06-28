@@ -34,10 +34,10 @@ public class SocketCommunicate {
     private ObjectInputStream mInputStream;
     private ObjectOutputStream mOutputStream;
 
-    private String mCurrentDir;
+    private RemoteEnvironment env;
 
     public SocketCommunicate(Socket socket) {
-        mCurrentDir = "/";
+        env = new RemoteEnvironment();
         mSocket = socket;
         try {
             mOutputStream = new ObjectOutputStream(mSocket.getOutputStream());
@@ -52,16 +52,20 @@ public class SocketCommunicate {
 
     public void start() {
         while (true) {
-            System.out.print(">");
+            System.out.print(env.getCurrentDir() + ">");
             String cmd = readCommandLineString();
+            if (cmd == null || cmd.equals("")) {
+                continue;
+            }
 
             if ("exit".equals(cmd)) {
                 break;
-            } else if ("help".equals(cmd)) {
-                printUsage();
-            } else {
-                executeCommand(cmd);
+            } else if (cmd.startsWith("cd")) {
+                env.cdCommand(cmd);
+                continue;
             }
+
+            executeCommand(cmd);
         }
 
         try {
@@ -83,7 +87,7 @@ public class SocketCommunicate {
     }
 
     private void executeCommand(String cmd) {
-        Command command = new Command(cmd, mCurrentDir);
+        Command command = new Command(cmd, env.getCurrentDir());
         try {
             mOutputStream.writeObject(command);
         } catch (IOException e) {
@@ -94,22 +98,11 @@ public class SocketCommunicate {
 
         try {
             Response response = (Response) mInputStream.readObject();
-            System.out.println(response.message);
-            System.out.println(response.data);
+            env.parseResponse(response);
         } catch (Exception e) {
             System.err.println("read from socket error!");
             e.printStackTrace();
         }
     }
 
-    public void printUsage() {
-        System.out.print(
-                "Peek Android Private File:\n"
-                        + "list                       - show all files in current folder\n"
-                        + "cd [dir]                   - change to dir or root dir\n"
-                        + "mkdir <dir>                - make a new dir in current folder\n"
-                        + "create <file>              - make a new file in current folder\n"
-                        + "exit                       - exit this program\n"
-                        + "help                       - show this help message\n");
-    }
 }

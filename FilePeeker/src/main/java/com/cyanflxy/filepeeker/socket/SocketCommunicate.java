@@ -21,6 +21,7 @@ import android.util.Log;
 import com.cyanflxy.filepeeker.bridge.Command;
 import com.cyanflxy.filepeeker.bridge.ConnectionUtils;
 import com.cyanflxy.filepeeker.bridge.Response;
+import com.cyanflxy.filepeeker.command.CommandManager;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -65,10 +66,14 @@ public class SocketCommunicate implements Runnable {
                 break;
             }
 
-            Response response = executeCommand(command);
+            Response response = CommandManager.executeCommand(command);
 
             try {
-                Log.i(TAG, "Send Message" + response.message);
+                if (response != null) {
+                    Log.i(TAG, "Send Message" + response.message);
+                } else {
+                    Log.i(TAG, "Response is null!");
+                }
                 outputStream.writeObject(response);
             } catch (Exception e) {
                 Log.w(TAG, "Send Response exception", e);
@@ -83,13 +88,4 @@ public class SocketCommunicate implements Runnable {
         }
     }
 
-    private Response executeCommand(Command command) {
-
-        Response response = new Response();
-        response.code = Response.CODE_UNKNOWN_COMMAND;
-        response.message = "Unsupported Command";
-        response.data = command;
-
-        return response;
-    }
 }

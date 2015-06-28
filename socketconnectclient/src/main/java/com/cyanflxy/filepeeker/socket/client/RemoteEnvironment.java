@@ -14,28 +14,33 @@
  * limitations under the License.
  */
 
-package com.cyanflxy.filepeeker.bridge;
+package com.cyanflxy.filepeeker.socket.client;
 
-import java.io.Serializable;
+import com.cyanflxy.filepeeker.bridge.Response;
 
 /**
- * 远程文件处理命令
+ * 远程执行状态与结果
  * <p/>
- * Created by CyanFlxy on 2015/6/24.
+ * Created by CyanFlxy on 2015/6/28.
  */
-public class Command implements Serializable {
-    public static final long serialVersionUID = 1L;
+public class RemoteEnvironment {
+    private String currentDir;
 
-    public final String command;
-    public final String currentDir;
-
-    public Command(String cmd, String dir) {
-        command = cmd;
-        currentDir = dir;
+    public RemoteEnvironment() {
+        currentDir = "/";
     }
 
-    @Override
-    public String toString() {
-        return "Command:" + command + " dir:" + currentDir;
+    public String getCurrentDir() {
+        return currentDir;
+    }
+
+    public void cdCommand(String cmd) {
+
+    }
+
+    public void parseResponse(Response response) {
+
+        System.out.println(response.message);
+        System.out.println(response.data);
     }
 }

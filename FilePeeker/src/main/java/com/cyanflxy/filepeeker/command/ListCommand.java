@@ -14,28 +14,25 @@
  * limitations under the License.
  */
 
-package com.cyanflxy.filepeeker.bridge;
+package com.cyanflxy.filepeeker.command;
 
-import java.io.Serializable;
+import com.cyanflxy.filepeeker.bridge.Command;
+import com.cyanflxy.filepeeker.bridge.Response;
+
 
 /**
- * 远程文件处理命令
+ * 处理list命令
  * <p/>
- * Created by CyanFlxy on 2015/6/24.
+ * Created by CyanFlxy on 2015/6/28.
  */
-public class Command implements Serializable {
-    public static final long serialVersionUID = 1L;
-
-    public final String command;
-    public final String currentDir;
-
-    public Command(String cmd, String dir) {
-        command = cmd;
-        currentDir = dir;
+public class ListCommand implements CommandExecutor {
+    @Override
+    public String getCommandName() {
+        return "list";
     }
 
     @Override
-    public String toString() {
-        return "Command:" + command + " dir:" + currentDir;
+    public Response execute(Command command) {
+        return null;
     }
 }
