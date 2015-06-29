@@ -25,9 +25,32 @@ import java.net.Socket;
  */
 public class PeekFile {
     public static void main(String[] args) {
-        AdbConnect connect = new AdbConnect("com.cyanflxy.peekerdemo");
+
+        if (args.length == 2 && "-adb".equals(args[0])) {
+            connectAdb(args[1]);
+        } else if (args.length == 3 && "-net".equals(args[0])) {
+            connectNet(args[1], args[2]);
+        } else {
+            showHelp();
+        }
+
+    }
+
+    private static void connectAdb(String pkgName) {
+        AdbConnect connect = new AdbConnect(pkgName);
         Socket socket = connect.getConnectionSocket();
-        SocketCommunicate communicate = new SocketCommunicate(socket);
+        Conversation communicate = new Conversation(socket);
         communicate.start();
+    }
+
+    private static void connectNet(String ip, String pkgName) {
+
+    }
+
+    private static void showHelp() {
+        System.out.println("PeekFile PC Terminal\n" +
+                        "PeekFile -adb <package name>\n" +
+                        "PeekFile -net <ip> <package name>"
+        );
     }
 }

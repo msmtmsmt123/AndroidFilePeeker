@@ -16,6 +16,7 @@
 
 package com.cyanflxy.filepeeker.socket.client;
 
+import com.cyanflxy.filepeeker.bridge.RemoteFile;
 import com.cyanflxy.filepeeker.bridge.Response;
 
 /**
@@ -24,6 +25,7 @@ import com.cyanflxy.filepeeker.bridge.Response;
  * Created by CyanFlxy on 2015/6/28.
  */
 public class RemoteEnvironment {
+
     private String currentDir;
 
     public RemoteEnvironment() {
@@ -34,13 +36,27 @@ public class RemoteEnvironment {
         return currentDir;
     }
 
-    public void cdCommand(String cmd) {
-
-    }
-
     public void parseResponse(Response response) {
-
-        System.out.println(response.message);
-        System.out.println(response.data);
+        switch (response.cmdType) {
+            case ls:
+                RemoteFile[] files = (RemoteFile[]) response.data;
+                for (RemoteFile f : files) {
+                    System.out.println(f);
+                }
+                break;
+            case cd:
+                currentDir = (String) response.data;
+                break;
+            case mkdir:
+                break;
+            case create:
+                break;
+            case help:
+                System.out.println(response.data);
+                break;
+            case exit:
+                System.exit(0);
+                break;
+        }
     }
 }

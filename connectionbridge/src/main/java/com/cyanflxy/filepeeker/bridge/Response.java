@@ -23,8 +23,12 @@ public class Response implements Serializable {
 
     public static final int CODE_SUCCESS = 0;
     public static final int CODE_UNKNOWN_COMMAND = 101;
+    public static final int CODE_ARG_ERROR = 102;
+    public static final int CODE_EXECUTE_ERROR = 102;
 
     public int code;
     public String message;
+
+    public CommandType cmdType;
     public Object data;
 }

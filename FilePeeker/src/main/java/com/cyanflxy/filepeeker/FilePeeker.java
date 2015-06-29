@@ -47,6 +47,8 @@ public class FilePeeker {
             return;
         }
 
+        FileUtils.init(c);
+
         localFileDir = c.getFilesDir().getParent();
         packageName = c.getPackageName();
 

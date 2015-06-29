@@ -21,7 +21,7 @@ import android.util.Log;
 import com.cyanflxy.filepeeker.bridge.Command;
 import com.cyanflxy.filepeeker.bridge.ConnectionUtils;
 import com.cyanflxy.filepeeker.bridge.Response;
-import com.cyanflxy.filepeeker.command.CommandManager;
+import com.cyanflxy.filepeeker.CommandExecutor;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -33,11 +33,14 @@ import static com.cyanflxy.filepeeker.bridge.ConnectionUtils.TAG;
 
 public class SocketCommunicate implements Runnable {
 
-    private Socket mSocket;
+    private final Socket mSocket;
+    private final CommandExecutor commandExecutor;
 
     public SocketCommunicate(Socket socket) {
 
         mSocket = socket;
+
+        commandExecutor = new CommandExecutor();
     }
 
     @Override
@@ -66,7 +69,7 @@ public class SocketCommunicate implements Runnable {
                 break;
             }
 
-            Response response = CommandManager.executeCommand(command);
+            Response response = commandExecutor.executeCommand(command);
 
             try {
                 if (response != null) {

@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-package com.cyanflxy.filepeeker.command;
-
-import com.cyanflxy.filepeeker.bridge.Command;
-import com.cyanflxy.filepeeker.bridge.Response;
-
+package com.cyanflxy.filepeeker.bridge;
 
 /**
- * 处理list命令
- * <p/>
- * Created by CyanFlxy on 2015/6/28.
+ * 支持的几种命令
+ * Created by CyanFlxy on 2015/6/29.
  */
-public class ListCommand implements CommandExecutor {
-    @Override
-    public String getCommandName() {
-        return "list";
-    }
+public enum CommandType {
+    ls("                         - show all files in current folder"),
+    cd(" [dir]                   - change to dir or root dir"),
+    mkdir(" <dir>                - make a new dir in current folder"),
+    create(" <file>              - make a new file in current folder"),
+    help("                       - show this help message"),
+    exit("                       - exit this program");
 
-    @Override
-    public Response execute(Command command) {
-        return null;
+    public final String usage;
+
+    CommandType(String usage) {
+        this.usage = name() + usage;
     }
 }

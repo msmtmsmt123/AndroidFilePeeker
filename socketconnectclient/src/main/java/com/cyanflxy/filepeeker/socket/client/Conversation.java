@@ -29,14 +29,14 @@ import java.net.Socket;
  * <p/>
  * Created by CyanFlxy on 2015/6/24.
  */
-public class SocketCommunicate {
+public class Conversation {
     private Socket mSocket;
     private ObjectInputStream mInputStream;
     private ObjectOutputStream mOutputStream;
 
     private RemoteEnvironment env;
 
-    public SocketCommunicate(Socket socket) {
+    public Conversation(Socket socket) {
         env = new RemoteEnvironment();
         mSocket = socket;
         try {
@@ -60,9 +60,6 @@ public class SocketCommunicate {
 
             if ("exit".equals(cmd)) {
                 break;
-            } else if (cmd.startsWith("cd")) {
-                env.cdCommand(cmd);
-                continue;
             }
 
             executeCommand(cmd);
@@ -77,9 +74,21 @@ public class SocketCommunicate {
 
     private String readCommandLineString() {
         try {
-            byte[] buff = new byte[128];
-            int len = System.in.read(buff);
-            return new String(buff, 0, len - 1);//过滤掉最后的回车号
+            byte[] buff = new byte[32];
+            StringBuilder sb = new StringBuilder();
+
+            do {
+                int len = System.in.read(buff);
+                if (len < 0) {
+                    System.out.println("read console Error!");
+                    System.exit(0);//读取异常结束了
+                }
+
+                sb.append(new String(buff, 0, len));
+
+            } while (System.in.available() > 0);
+
+            return sb.substring(0, sb.length() - 1);//去掉最后的回车键
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -98,7 +107,15 @@ public class SocketCommunicate {
 
         try {
             Response response = (Response) mInputStream.readObject();
-            env.parseResponse(response);
+
+            if (response.code != Response.CODE_SUCCESS) {
+                System.out.println(response.message);
+                if (response.data != null) {
+                    System.out.println(response.data);
+                }
+            } else {
+                env.parseResponse(response);
+            }
         } catch (Exception e) {
             System.err.println("read from socket error!");
             e.printStackTrace();
