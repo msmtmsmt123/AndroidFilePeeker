@@ -21,12 +21,14 @@ package com.cyanflxy.filepeeker.bridge;
  * Created by CyanFlxy on 2015/6/29.
  */
 public enum CommandType {
-    ls("                         - show all files in current folder"),
-    cd(" [dir]                   - change to dir or root dir"),
-    mkdir(" <dir>                - make a new dir in current folder"),
-    create(" <file>              - make a new file in current folder"),
-    help("                       - show this help message"),
-    exit("                       - exit this program");
+    ls("                         - show all files in current folder."),
+    cd(" [dir]                   - change to dir or root dir."),
+    mkdir(" <dir>                - make a new dir in current folder."),
+    create(" <file>              - make a new file in current folder."),
+    rm(" <file>                  - remove a file."),
+    rmdir(" <dir>                - remove a directory"),
+    help("                       - show this help message."),
+    exit("                       - exit this program.");
 
     public final String usage;
 

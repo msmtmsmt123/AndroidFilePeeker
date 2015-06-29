@@ -26,17 +26,18 @@ import java.io.Serializable;
 public class RemoteFile implements Serializable {
     public static final long serialVersionUID = 1L;
 
+    private final String relativePath;
     private final String fileName;
     private final boolean isDirectory;
 
-    public RemoteFile(File file) {
+    public RemoteFile(File file, String privatePath) {
         fileName = file.getName();
         isDirectory = file.isDirectory();
+        relativePath = file.getAbsolutePath().substring(privatePath.length());
     }
 
-    private RemoteFile() {
-        fileName = "test";
-        isDirectory = false;
+    public String getAbsolutePath() {
+        return relativePath;
     }
 
     public String getFileName() {
@@ -54,12 +55,8 @@ public class RemoteFile implements Serializable {
     @Override
     public String toString() {
         String type = isDirectory ? "<DIR>" : "<FILE>";
-        return String.format("%-10s %5s",
-                fileName, type);
+        return String.format("%-10s %5s %-20s",
+                fileName, type, relativePath);
     }
 
-    public static void main(String[] args) {
-        RemoteFile file = new RemoteFile();
-        System.out.println(file);
-    }
 }

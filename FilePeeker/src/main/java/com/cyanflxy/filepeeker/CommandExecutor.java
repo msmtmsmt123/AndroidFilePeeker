@@ -20,6 +20,8 @@ import com.cyanflxy.filepeeker.bridge.Command;
 import com.cyanflxy.filepeeker.bridge.CommandType;
 import com.cyanflxy.filepeeker.bridge.Response;
 
+import java.io.IOException;
+
 /**
  * 第二层，执行命令，返回结果
  * <p/>
@@ -48,11 +50,15 @@ public class CommandExecutor {
             case cd:
                 return cd(args, currentDir);
             case ls:
-                return list(currentDir);
+                return ls(currentDir);
             case create:
-                break;
+                return create(args, currentDir);
             case mkdir:
-                break;
+                return mkdir(args, currentDir);
+            case rm:
+                return rm(args, currentDir);
+            case rmdir:
+                return rmdir(args, currentDir);
             case help:
                 return help();
             case exit:
@@ -69,7 +75,7 @@ public class CommandExecutor {
             response.data = "/";
         } else if (args.length > 2) {
             response.code = Response.CODE_ARG_ERROR;
-            response.message = CommandType.cd.usage;
+            response.data = CommandType.cd.usage;
         } else {
             String dir = FileUtils.changeDirectory(currentDir, args[1]);
             if (FileUtils.validDir(dir)) {
@@ -77,17 +83,86 @@ public class CommandExecutor {
                 response.data = dir;
             } else {
                 response.code = Response.CODE_EXECUTE_ERROR;
-                response.message = "directory not exits.";
+                response.data = "directory not exits.";
             }
         }
 
         return response;
     }
 
-    private Response list(String currentDir) {
+    private Response ls(String currentDir) {
         Response response = new Response();
         response.code = Response.CODE_SUCCESS;
         response.data = FileUtils.listFile(currentDir);
+        return response;
+    }
+
+    private Response create(String[] args, String currentDir) {
+        Response response = new Response();
+        if (args.length != 2) {
+            response.code = Response.CODE_ARG_ERROR;
+            response.data = CommandType.create.usage;
+        } else {
+            try {
+                FileUtils.create(currentDir, args[1]);
+                response.code = Response.CODE_SUCCESS;
+            } catch (IOException e) {
+                response.code = Response.CODE_EXECUTE_ERROR;
+                response.data = e.getMessage();
+            }
+        }
+
+        return response;
+    }
+
+    private Response mkdir(String[] args, String currentDir) {
+        Response response = new Response();
+        if (args.length != 2) {
+            response.code = Response.CODE_ARG_ERROR;
+            response.data = CommandType.mkdir.usage;
+        } else {
+            try {
+                FileUtils.mkdir(currentDir, args[1]);
+                response.code = Response.CODE_SUCCESS;
+            } catch (IOException e) {
+                response.code = Response.CODE_EXECUTE_ERROR;
+                response.data = e.getMessage();
+            }
+        }
+        return response;
+    }
+
+    private Response rm(String[] args, String currentDir) {
+        Response response = new Response();
+        if (args.length != 2) {
+            response.code = Response.CODE_ARG_ERROR;
+            response.data = CommandType.mkdir.usage;
+        } else {
+            try {
+                FileUtils.rm(currentDir, args[1]);
+                response.code = Response.CODE_SUCCESS;
+            } catch (IOException e) {
+                response.code = Response.CODE_EXECUTE_ERROR;
+                response.data = e.getMessage();
+            }
+        }
+        return response;
+    }
+
+    private Response rmdir(String[] args, String currentDir) {
+        Response response = new Response();
+        if (args.length != 2) {
+            response.code = Response.CODE_ARG_ERROR;
+            response.data = CommandType.mkdir.usage;
+        } else {
+            try {
+                FileUtils.rmdir(currentDir, args[1]);
+                response.code = Response.CODE_SUCCESS;
+            } catch (IOException e) {
+                response.code = Response.CODE_EXECUTE_ERROR;
+                response.data = e.getMessage();
+            }
+        }
         return response;
     }
 
@@ -101,7 +176,6 @@ public class CommandExecutor {
     private Response unknownCommand() {
         Response response = new Response();
         response.code = Response.CODE_UNKNOWN_COMMAND;
-        response.message = "Unsupported Command";
         response.data = getHelpString();
         return response;
     }

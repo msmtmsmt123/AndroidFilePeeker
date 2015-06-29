@@ -21,6 +21,7 @@ import android.content.Context;
 import com.cyanflxy.filepeeker.bridge.RemoteFile;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * 文件处理工具
@@ -95,10 +96,72 @@ public class FileUtils {
         RemoteFile[] remoteFiles = new RemoteFile[files.length];
 
         for (int i = 0; i < files.length; i++) {
-            remoteFiles[i] = new RemoteFile(files[i]);
+            remoteFiles[i] = new RemoteFile(files[i],localFileDir);
         }
 
         return remoteFiles;
     }
 
+    public static File getFile(String currentDir, String name) throws IOException {
+        File dirFile = new File(localFileDir, currentDir);
+        if (!dirFile.exists()) {
+            throw new IOException("Current directory is not exist, Name:" + name);
+        }
+
+        return new File(dirFile, name);
+    }
+
+    public static void create(String currentDir, String name) throws IOException {
+        File file = getFile(currentDir, name);
+        if (file.exists()) {
+            throw new IOException("Target file name is exist, Name:" + name);
+        }
+
+        if (!file.createNewFile()) {
+            throw new IOException("File create failed for already exist, Name:" + name);
+        }
+    }
+
+    public static void mkdir(String currentDir, String name) throws IOException {
+        File file = getFile(currentDir, name);
+        if (file.exists()) {
+            throw new IOException("Target file Name is Exist, Name:" + name);
+        }
+
+        if (!file.mkdirs()) {
+            throw new IOException("Directory create failed for already exist, Name:" + name);
+        }
+    }
+
+    public static void rm(String currentDir, String name) throws IOException {
+
+        File file = getFile(currentDir, name);
+        if (!file.exists()) {
+            throw new IOException("Target file is not Exist, Name:" + name);
+        }
+
+        if (file.isDirectory()) {
+            throw new IOException("Target is directory please use 'rmdir', Name:" + name);
+        }
+
+        if (!file.delete()) {
+            throw new IOException("File delete failed, Name: " + name);
+        }
+    }
+
+    public static void rmdir(String currentDir, String name) throws IOException {
+
+        File file = getFile(currentDir, name);
+        if (!file.exists()) {
+            throw new IOException("Target file is not Exist, Name:" + name);
+        }
+
+        if (file.isFile()) {
+            throw new IOException("Target is file please use 'rm', Name:" + name);
+        }
+
+        if (!file.delete()) {
+            throw new IOException("Directory delete failed, Name: " + name);
+        }
+    }
 }

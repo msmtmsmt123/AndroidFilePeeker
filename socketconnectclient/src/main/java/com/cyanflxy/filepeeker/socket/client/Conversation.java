@@ -17,8 +17,10 @@
 package com.cyanflxy.filepeeker.socket.client;
 
 import com.cyanflxy.filepeeker.bridge.Command;
+import com.cyanflxy.filepeeker.bridge.RemoteFile;
 import com.cyanflxy.filepeeker.bridge.Response;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -34,10 +36,10 @@ public class Conversation {
     private ObjectInputStream mInputStream;
     private ObjectOutputStream mOutputStream;
 
-    private RemoteEnvironment env;
+    private String currentDir;
 
     public Conversation(Socket socket) {
-        env = new RemoteEnvironment();
+        currentDir = "/";
         mSocket = socket;
         try {
             mOutputStream = new ObjectOutputStream(mSocket.getOutputStream());
@@ -52,7 +54,7 @@ public class Conversation {
 
     public void start() {
         while (true) {
-            System.out.print(env.getCurrentDir() + ">");
+            System.out.print(currentDir + ">");
             String cmd = readCommandLineString();
             if (cmd == null || cmd.equals("")) {
                 continue;
@@ -96,7 +98,7 @@ public class Conversation {
     }
 
     private void executeCommand(String cmd) {
-        Command command = new Command(cmd, env.getCurrentDir());
+        Command command = new Command(cmd, currentDir);
         try {
             mOutputStream.writeObject(command);
         } catch (IOException e) {
@@ -109,17 +111,41 @@ public class Conversation {
             Response response = (Response) mInputStream.readObject();
 
             if (response.code != Response.CODE_SUCCESS) {
-                System.out.println(response.message);
+                String msg = Response.getResponseCodeMessage(response.code);
+                System.out.println(msg);
+
                 if (response.data != null) {
                     System.out.println(response.data);
                 }
             } else {
-                env.parseResponse(response);
+                parseResponse(response);
             }
+        }catch (EOFException e){
+            System.err.println("Remote Socket is Closed!");
+            System.exit(1);
         } catch (Exception e) {
             System.err.println("read from socket error!");
             e.printStackTrace();
         }
     }
 
+    public void parseResponse(Response response) {
+        switch (response.cmdType) {
+            case ls:
+                RemoteFile[] files = (RemoteFile[]) response.data;
+                for (RemoteFile f : files) {
+                    System.out.println(f);
+                }
+                break;
+            case cd:
+                currentDir = (String) response.data;
+                break;
+            case help:
+                System.out.println(response.data);
+                break;
+            case exit:
+                System.exit(0);
+                break;
+        }
+    }
 }

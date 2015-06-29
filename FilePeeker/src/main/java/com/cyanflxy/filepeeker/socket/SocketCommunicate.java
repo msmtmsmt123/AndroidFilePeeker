@@ -72,11 +72,6 @@ public class SocketCommunicate implements Runnable {
             Response response = commandExecutor.executeCommand(command);
 
             try {
-                if (response != null) {
-                    Log.i(TAG, "Send Message" + response.message);
-                } else {
-                    Log.i(TAG, "Response is null!");
-                }
                 outputStream.writeObject(response);
             } catch (Exception e) {
                 Log.w(TAG, "Send Response exception", e);

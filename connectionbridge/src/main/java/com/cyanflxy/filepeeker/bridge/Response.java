@@ -24,11 +24,25 @@ public class Response implements Serializable {
     public static final int CODE_SUCCESS = 0;
     public static final int CODE_UNKNOWN_COMMAND = 101;
     public static final int CODE_ARG_ERROR = 102;
-    public static final int CODE_EXECUTE_ERROR = 102;
+    public static final int CODE_EXECUTE_ERROR = 103;
 
     public int code;
-    public String message;
-
-    public CommandType cmdType;
     public Object data;
+    public CommandType cmdType;
+
+    public static String getResponseCodeMessage(int code) {
+        switch (code) {
+            case CODE_SUCCESS:
+                return "success";
+            case CODE_UNKNOWN_COMMAND:
+                return "unsupported command";
+            case CODE_ARG_ERROR:
+                return "args error";
+            case CODE_EXECUTE_ERROR:
+                return "command execute error";
+            default:
+                break;
+        }
+        return "";
+    }
 }
