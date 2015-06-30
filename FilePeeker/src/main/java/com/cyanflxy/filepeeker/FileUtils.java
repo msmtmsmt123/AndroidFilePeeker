@@ -82,7 +82,7 @@ public class FileUtils {
             return "/";
         }
 
-        return current.substring(0, index - 1);
+        return current.substring(0, index);
     }
 
     public static boolean validDir(String dir) {
@@ -96,7 +96,7 @@ public class FileUtils {
         RemoteFile[] remoteFiles = new RemoteFile[files.length];
 
         for (int i = 0; i < files.length; i++) {
-            remoteFiles[i] = new RemoteFile(files[i],localFileDir);
+            remoteFiles[i] = new RemoteFile(files[i], relativeName(files[i]));
         }
 
         return remoteFiles;
@@ -160,8 +160,27 @@ public class FileUtils {
             throw new IOException("Target is file please use 'rm', Name:" + name);
         }
 
-        if (!file.delete()) {
-            throw new IOException("Directory delete failed, Name: " + name);
+        remove(file);
+    }
+
+    private static void remove(File file) throws IOException {
+        if (file.isFile()) {
+            if (!file.delete()) {
+                throw new IOException("delete File failed, Name: " + relativeName(file));
+            }
+        } else {
+            File[] files = file.listFiles();
+            for (File f : files) {
+                remove(f);
+            }
+
+            if (!file.delete()) {
+                throw new IOException("delete directory failed, Name: " + relativeName(file));
+            }
         }
+    }
+
+    public static String relativeName(File file) {
+        return file.getAbsolutePath().substring(localFileDir.length());
     }
 }

@@ -34,7 +34,7 @@ public class CommandExecutor {
     }
 
     public Response executeCommand(Command command) {
-        String[] args = command.command.split(" ");
+        String[] args = command.command.trim().split(" ");
         try {
             CommandType type = CommandType.valueOf(args[0]);
             Response response = executeCommand(type, args, command.currentDir);

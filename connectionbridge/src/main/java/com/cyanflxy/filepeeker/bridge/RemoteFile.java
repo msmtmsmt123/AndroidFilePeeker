@@ -30,10 +30,10 @@ public class RemoteFile implements Serializable {
     private final String fileName;
     private final boolean isDirectory;
 
-    public RemoteFile(File file, String privatePath) {
+    public RemoteFile(File file, String relativePath) {
         fileName = file.getName();
         isDirectory = file.isDirectory();
-        relativePath = file.getAbsolutePath().substring(privatePath.length());
+        this.relativePath = relativePath;
     }
 
     public String getAbsolutePath() {
