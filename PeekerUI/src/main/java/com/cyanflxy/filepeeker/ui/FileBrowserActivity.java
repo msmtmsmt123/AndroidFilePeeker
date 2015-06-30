@@ -28,10 +28,11 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.cyanflxy.filepeeker.FilePeeker;
+import com.cyanflxy.filepeeker.FileUtils;
 import com.cyanflxy.peekerui.R;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -207,7 +208,7 @@ public class FileBrowserActivity extends Activity {
 
     private void enter(String path) {
         mCurrentPath = path;
-        mAdapter.setData(FilePeeker.listFiles(mCurrentPath));
+        mAdapter.setData(FileUtils.listFile(mCurrentPath));
         mCurrentPathView.setText(mCurrentPath);
 
         if (ROOT_PATH.equals(mCurrentPath)) {
@@ -218,17 +219,25 @@ public class FileBrowserActivity extends Activity {
     }
 
     private void createFile(String fileName) {
-        FilePeeker.createFile(mCurrentPath, fileName);
+        try {
+            FileUtils.create(mCurrentPath,fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         refreshFileList();
     }
 
     private void createFolder(String folderName) {
-        FilePeeker.createFolder(mCurrentPath, folderName);
+        try {
+            FileUtils.mkdir(mCurrentPath,folderName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         refreshFileList();
     }
 
     private void refreshFileList() {
-        mAdapter.setData(FilePeeker.listFiles(mCurrentPath));
+        mAdapter.setData(FileUtils.listFile(mCurrentPath));
     }
 
     private void showMenu() {

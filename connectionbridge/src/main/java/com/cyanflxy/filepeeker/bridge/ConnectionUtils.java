@@ -24,4 +24,8 @@ public class ConnectionUtils {
         return pkgName.hashCode() % 64451 + 1048;
     }
 
+    public static int getNetPort(String pkgName) {
+        return getAdbPort(pkgName) + 7;
+    }
+
 }

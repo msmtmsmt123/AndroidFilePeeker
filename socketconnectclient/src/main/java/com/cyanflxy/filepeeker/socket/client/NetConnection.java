@@ -24,43 +24,34 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 /**
- * adb连接pc端命令行工具
- * <p/>
- * Created by CyanFlxy on 2015/6/24.
+ * 网络连接socket方式
+ * Created by CyanFlxy on 2015/6/30.
  */
-public class AdbConnect {
+public class NetConnection {
+    private final String ip;
+    private final String pkgName;
 
-    private final String mPkgName;
-    private final int mLocalPort;
-
-    public AdbConnect(String pkgName) {
-        mPkgName = pkgName;
-        mLocalPort = ConnectionUtils.getAdbPort(mPkgName);
+    public NetConnection(String ip, String pkgName) {
+        this.ip = ip;
+        this.pkgName = pkgName;
     }
 
-    public Socket getConnectionSocket() {
-        try {
-            System.out.println("Connect to " + mPkgName + " @LocalPort:" + mLocalPort+" @RemotePort:"+mLocalPort);
-            Runtime.getRuntime().exec(String.format("adb forward tcp:%d tcp:%d", mLocalPort, mLocalPort));
-        } catch (IOException e) {
-            e.printStackTrace();
-
-            System.err.println("ADB Command Execute Error! Please Check ADB Server and Device.");
-            System.exit(1);
-        }
-
+    public Socket connect() {
         InetAddress inetAddress = null;
+
         try {
-            inetAddress = InetAddress.getByName("127.0.0.1");
+            inetAddress = InetAddress.getByName(ip);
         } catch (UnknownHostException e) {
             e.printStackTrace();
 
-            System.err.println("localhost IP <127.0.0.1> cannot be resolved!");
+            System.err.println("cannot resolved ip:" + ip);
             System.exit(1);
         }
 
+        int port = ConnectionUtils.getAdbPort(pkgName);
+
         try {
-            return new Socket(inetAddress, mLocalPort);
+            return new Socket(inetAddress, port);
         } catch (IOException e) {
             e.printStackTrace();
 
@@ -68,7 +59,5 @@ public class AdbConnect {
             System.exit(1);
             return null;
         }
-
     }
-
 }

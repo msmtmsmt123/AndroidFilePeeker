@@ -26,6 +26,8 @@ import java.net.Socket;
 public class PeekFile {
     public static void main(String[] args) {
 
+//        connectNet("192.168.1.8","com.cyanflxy.peekerdemo");
+
         if (args.length == 2 && "-adb".equals(args[0])) {
             connectAdb(args[1]);
         } else if (args.length == 3 && "-net".equals(args[0])) {
@@ -37,14 +39,17 @@ public class PeekFile {
     }
 
     private static void connectAdb(String pkgName) {
-        AdbConnect connect = new AdbConnect(pkgName);
-        Socket socket = connect.getConnectionSocket();
+        AdbConnection connect = new AdbConnection(pkgName);
+        Socket socket = connect.connect();
         Conversation communicate = new Conversation(socket);
         communicate.start();
     }
 
     private static void connectNet(String ip, String pkgName) {
-
+        NetConnection connect = new NetConnection(ip, pkgName);
+        Socket socket = connect.connect();
+        Conversation communicate = new Conversation(socket);
+        communicate.start();
     }
 
     private static void showHelp() {

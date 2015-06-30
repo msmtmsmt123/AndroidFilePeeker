@@ -16,33 +16,65 @@
 
 package com.cyanflxy.filepeeker.socket;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public abstract class SocketServer implements Runnable {
+import static com.cyanflxy.filepeeker.bridge.ConnectionUtils.TAG;
+
+public class SocketServer implements Runnable {
 
     private OnSocketAccept onSocketAcceptListener;
-    protected ServerSocket mServerSocket;
+    private ServerSocket serverSocket;
+    private int port;
+
+    public void setPort(int p) {
+        port = p;
+    }
 
     public void setOnSocketAccept(OnSocketAccept accept) {
         onSocketAcceptListener = accept;
     }
 
-    protected void onSocketAccept(Socket socket) {
-        if (onSocketAcceptListener != null) {
-            onSocketAcceptListener.socketAccept(this, socket);
+    @Override
+    public void run() {
+        try {
+            serverSocket = new ServerSocket(port);
+        } catch (IOException e) {
+            Log.w(TAG, "AdbServer Create Socket Exception.", e);
+            return;
+        }
+
+        Log.i(TAG, "AdbServer Listen Socket @port:" + port);
+
+        while (true) {
+            Socket clientSocket;
+            try {
+                clientSocket = serverSocket.accept();
+                Log.i(TAG, "AdbServer accept Socket @port:" + port);
+
+                if (onSocketAcceptListener != null) {
+                    onSocketAcceptListener.socketAccept(this, clientSocket);
+                }
+            } catch (IOException e) {
+                Log.w(TAG, "AdbServer Listen Socket Exception", e);
+                break;
+            }
+
         }
     }
 
     public void close() {
-        if (mServerSocket != null) {
+        if (serverSocket != null) {
             try {
-                mServerSocket.close();
+                serverSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            mServerSocket = null;
+            serverSocket = null;
         }
     }
+
 }

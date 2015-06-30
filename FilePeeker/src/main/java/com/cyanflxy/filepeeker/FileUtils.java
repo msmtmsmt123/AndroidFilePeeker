@@ -18,8 +18,6 @@ package com.cyanflxy.filepeeker;
 
 import android.content.Context;
 
-import com.cyanflxy.filepeeker.bridge.RemoteFile;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -90,16 +88,9 @@ public class FileUtils {
         return file.isDirectory();
     }
 
-    public static RemoteFile[] listFile(String dir) {
+    public static File[] listFile(String dir) {
         File file = new File(localFileDir, dir);
-        File[] files = file.listFiles();
-        RemoteFile[] remoteFiles = new RemoteFile[files.length];
-
-        for (int i = 0; i < files.length; i++) {
-            remoteFiles[i] = new RemoteFile(files[i], relativeName(files[i]));
-        }
-
-        return remoteFiles;
+        return file.listFiles();
     }
 
     public static File getFile(String currentDir, String name) throws IOException {

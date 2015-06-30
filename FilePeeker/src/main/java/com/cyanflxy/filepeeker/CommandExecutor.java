@@ -18,8 +18,10 @@ package com.cyanflxy.filepeeker;
 
 import com.cyanflxy.filepeeker.bridge.Command;
 import com.cyanflxy.filepeeker.bridge.CommandType;
+import com.cyanflxy.filepeeker.bridge.RemoteFile;
 import com.cyanflxy.filepeeker.bridge.Response;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -93,7 +95,15 @@ public class CommandExecutor {
     private Response ls(String currentDir) {
         Response response = new Response();
         response.code = Response.CODE_SUCCESS;
-        response.data = FileUtils.listFile(currentDir);
+
+        File[] files = FileUtils.listFile(currentDir);
+        RemoteFile[] remoteFiles = new RemoteFile[files.length];
+
+        for (int i = 0; i < files.length; i++) {
+            remoteFiles[i] = new RemoteFile(files[i], FileUtils.relativeName(files[i]));
+        }
+
+        response.data = remoteFiles;
         return response;
     }
 

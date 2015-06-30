@@ -18,13 +18,11 @@ package com.cyanflxy.filepeeker;
 
 import android.content.Context;
 
-import com.cyanflxy.filepeeker.socket.AdbServer;
+import com.cyanflxy.filepeeker.bridge.ConnectionUtils;
 import com.cyanflxy.filepeeker.socket.OnSocketAccept;
 import com.cyanflxy.filepeeker.socket.SocketCommunicate;
 import com.cyanflxy.filepeeker.socket.SocketServer;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,10 +50,17 @@ public class FilePeeker {
         localFileDir = c.getFilesDir().getParent();
         packageName = c.getPackageName();
 
-        executorService = Executors.newScheduledThreadPool(3);
-        SocketServer adbServer = new AdbServer();
+        SocketServer adbServer = new SocketServer();
+        adbServer.setPort(ConnectionUtils.getAdbPort(packageName));
         adbServer.setOnSocketAccept(onSocketAccept);
+
+        SocketServer netServer = new SocketServer();
+        netServer.setPort(ConnectionUtils.getNetPort(packageName));
+        netServer.setOnSocketAccept(onSocketAccept);
+
+        executorService = Executors.newCachedThreadPool();
         executorService.execute(adbServer);
+        executorService.execute(netServer);
 
         serverList = new ArrayList<>(3);
         serverList.add(adbServer);
@@ -83,48 +88,4 @@ public class FilePeeker {
         }
     };
 
-    // 以下的内容属于过期代码
-
-    /**
-     * 列出dir目录下的所有文件
-     *
-     * @param dir 相对(应用私有目录的)目录
-     * @return dir下的所有文件(目录)
-     */
-    @Deprecated
-    public static File[] listFiles(String dir) {
-        File file = new File(localFileDir, dir);
-        return file.listFiles();
-    }
-
-    @Deprecated
-    public static boolean createFile(String dir, String fileName) {
-        File file = new File(localFileDir, dir);
-        if (!file.exists()) {
-            if (!file.mkdirs()) {
-                return false;
-            }
-        }
-
-        file = new File(file, fileName);
-        try {
-            return file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    @Deprecated
-    public static boolean createFolder(String dir, String folderName) {
-        File file = new File(localFileDir, dir);
-        if (!file.exists()) {
-            if (!file.mkdirs()) {
-                return false;
-            }
-        }
-
-        file = new File(file, folderName);
-        return file.mkdir();
-    }
 }
