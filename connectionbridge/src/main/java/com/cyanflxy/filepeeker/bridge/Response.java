@@ -28,7 +28,7 @@ public class Response implements Serializable {
 
     public int code;
     public Object data;
-    public CommandType cmdType;
+    public CommandType commandType;
 
     public static String getResponseCodeMessage(int code) {
         switch (code) {

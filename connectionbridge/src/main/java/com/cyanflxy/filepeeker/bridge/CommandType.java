@@ -27,6 +27,8 @@ public enum CommandType {
     create(" <file>              - make a new file in current folder."),
     rm(" <file>                  - remove a file."),
     rmdir(" <dir>                - remove a directory"),
+    put(" <local> [remote]       - put local file to remote path"),
+    get(" <remote> [local]       - get remote file to local path"),
     help("                       - show this help message."),
     exit("                       - exit this program.");
 
@@ -35,4 +37,5 @@ public enum CommandType {
     CommandType(String usage) {
         this.usage = name() + usage;
     }
+
 }

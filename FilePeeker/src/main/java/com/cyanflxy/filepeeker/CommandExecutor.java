@@ -19,166 +19,147 @@ package com.cyanflxy.filepeeker;
 import com.cyanflxy.filepeeker.bridge.Command;
 import com.cyanflxy.filepeeker.bridge.CommandType;
 import com.cyanflxy.filepeeker.bridge.RemoteFile;
+import com.cyanflxy.filepeeker.bridge.RemoteFileData;
 import com.cyanflxy.filepeeker.bridge.Response;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 
 /**
  * 第二层，执行命令，返回结果
  * <p/>
  * Created by CyanFlxy on 2015/6/28.
  */
+@SuppressWarnings("unused")
 public class CommandExecutor {
 
-    public CommandExecutor() {
-
-    }
-
     public Response executeCommand(Command command) {
-        String[] args = command.command.trim().split(" ");
+        Response response;
+
         try {
-            CommandType type = CommandType.valueOf(args[0]);
-            Response response = executeCommand(type, args, command.currentDir);
-            response.cmdType = type;
-            return response;
-        } catch (IllegalArgumentException e) {
-            return unknownCommand();
-        }
-    }
-
-    private Response executeCommand(CommandType type, String[] args, String currentDir) {
-        switch (type) {
-            case cd:
-                return cd(args, currentDir);
-            case ls:
-                return ls(currentDir);
-            case create:
-                return create(args, currentDir);
-            case mkdir:
-                return mkdir(args, currentDir);
-            case rm:
-                return rm(args, currentDir);
-            case rmdir:
-                return rmdir(args, currentDir);
-            case help:
-                return help();
-            case exit:
-                return exit();
-        }
-
-        return unknownCommand();
-    }
-
-    private Response cd(String[] args, String currentDir) {
-        Response response = new Response();
-        if (args.length == 1) {
+            Method executor = CommandExecutor.class.getDeclaredMethod(
+                    command.commandType.name(), Command.class);
+            response = (Response) executor.invoke(this, command);
             response.code = Response.CODE_SUCCESS;
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+
+            response = unknownCommand();
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            Throwable t = e.getCause();
+            if (t == null) {
+                t = e;
+            }
+
+            if (t instanceof IllegalArgumentException) {
+                response = new Response();
+                response.code = Response.CODE_ARG_ERROR;
+                response.data = t.getMessage() + "\n" + command.commandType.usage;
+            } else {
+                response = new Response();
+                response.code = Response.CODE_EXECUTE_ERROR;
+                response.data = t.getMessage();
+            }
+
+        }
+
+        response.commandType = command.commandType;
+        return response;
+    }
+
+    private Response cd(Command command) {
+        checkArgumentIs(command.args, 0, 1);
+
+        Response response = new Response();
+
+        if (command.args == null || command.args.length == 0) {
             response.data = "/";
-        } else if (args.length > 2) {
-            response.code = Response.CODE_ARG_ERROR;
-            response.data = CommandType.cd.usage;
         } else {
-            String dir = FileUtils.changeDirectory(currentDir, args[1]);
+            String dir = FileUtils.changeDirectory(command.currentDir, command.args[0]);
             if (FileUtils.validDir(dir)) {
-                response.code = Response.CODE_SUCCESS;
                 response.data = dir;
             } else {
-                response.code = Response.CODE_EXECUTE_ERROR;
-                response.data = "directory not exits.";
+                throw new IllegalArgumentException("directory not exits.");
             }
         }
 
         return response;
     }
 
-    private Response ls(String currentDir) {
-        Response response = new Response();
-        response.code = Response.CODE_SUCCESS;
+    private Response ls(Command command) {
+        checkArgumentIs(command.args, 0);
 
-        File[] files = FileUtils.listFile(currentDir);
+        File[] files = FileUtils.listFile(command.currentDir);
         RemoteFile[] remoteFiles = new RemoteFile[files.length];
 
         for (int i = 0; i < files.length; i++) {
             remoteFiles[i] = new RemoteFile(files[i], FileUtils.relativeName(files[i]));
         }
 
+        Response response = new Response();
         response.data = remoteFiles;
         return response;
     }
 
-    private Response create(String[] args, String currentDir) {
-        Response response = new Response();
-        if (args.length != 2) {
-            response.code = Response.CODE_ARG_ERROR;
-            response.data = CommandType.create.usage;
-        } else {
-            try {
-                FileUtils.create(currentDir, args[1]);
-                response.code = Response.CODE_SUCCESS;
-            } catch (IOException e) {
-                response.code = Response.CODE_EXECUTE_ERROR;
-                response.data = e.getMessage();
-            }
-        }
+    private Response create(Command command) throws IOException {
+        checkArgumentIs(command.args, 1);
 
-        return response;
+        FileUtils.create(command.currentDir, command.args[0]);
+        return new Response();
     }
 
-    private Response mkdir(String[] args, String currentDir) {
-        Response response = new Response();
-        if (args.length != 2) {
-            response.code = Response.CODE_ARG_ERROR;
-            response.data = CommandType.mkdir.usage;
-        } else {
-            try {
-                FileUtils.mkdir(currentDir, args[1]);
-                response.code = Response.CODE_SUCCESS;
-            } catch (IOException e) {
-                response.code = Response.CODE_EXECUTE_ERROR;
-                response.data = e.getMessage();
-            }
-        }
-        return response;
+    private Response mkdir(Command command) throws IOException {
+        checkArgumentIs(command.args, 1);
+
+        FileUtils.mkdir(command.currentDir, command.args[0]);
+        return new Response();
     }
 
-    private Response rm(String[] args, String currentDir) {
-        Response response = new Response();
-        if (args.length != 2) {
-            response.code = Response.CODE_ARG_ERROR;
-            response.data = CommandType.mkdir.usage;
-        } else {
-            try {
-                FileUtils.rm(currentDir, args[1]);
-                response.code = Response.CODE_SUCCESS;
-            } catch (IOException e) {
-                response.code = Response.CODE_EXECUTE_ERROR;
-                response.data = e.getMessage();
-            }
-        }
-        return response;
+    private Response rm(Command command) throws IOException {
+        checkArgumentNot(command.args, 0);
+
+        FileUtils.rm(command.currentDir, command.args[0]);
+        return new Response();
     }
 
-    private Response rmdir(String[] args, String currentDir) {
-        Response response = new Response();
-        if (args.length != 2) {
-            response.code = Response.CODE_ARG_ERROR;
-            response.data = CommandType.mkdir.usage;
-        } else {
-            try {
-                FileUtils.rmdir(currentDir, args[1]);
-                response.code = Response.CODE_SUCCESS;
-            } catch (IOException e) {
-                response.code = Response.CODE_EXECUTE_ERROR;
-                response.data = e.getMessage();
-            }
-        }
-        return response;
+    private Response rmdir(Command command) throws IOException {
+        checkArgumentNot(command.args, 0);
+
+        FileUtils.rmdir(command.currentDir, command.args[0]);
+        return new Response();
     }
 
-    private Response help() {
+    private Response put(Command command) throws IOException {
+        checkArgumentIs(command.args, 1, 2);
+
+        RemoteFileData remoteFileData = (RemoteFileData) command.data;
+
+        if (remoteFileData.length != remoteFileData.data.length) {
+            throw new IOException("File data length error, expect:" +
+                    remoteFileData.length + ", current:" + remoteFileData.data.length);
+        }
+
+        String fileName;
+
+        if (command.args.length == 2) {
+            fileName = command.args[1];
+        } else {
+            fileName = remoteFileData.name;
+        }
+
+        FileUtils.put(command.currentDir, fileName, remoteFileData.data);
+
+        return new Response();
+    }
+
+    private Response help(Command command) {
+        checkArgumentIs(command.args, 0);
+
         Response response = new Response();
-        response.code = Response.CODE_SUCCESS;
         response.data = getHelpString();
         return response;
     }
@@ -201,9 +182,42 @@ public class CommandExecutor {
         return sb.toString();
     }
 
-    private Response exit() {
-        Response response = new Response();
-        response.code = Response.CODE_SUCCESS;
-        return response;
+    private Response exit(Command command) {
+        checkArgumentIs(command.args, 0);
+
+        return new Response();
     }
+
+    private void checkArgumentIs(String[] args, int... count) {
+        int current = 0;
+        if (args != null) {
+            current = args.length;
+        }
+
+        for (int i : count) {
+            if (i == current) {
+                return;
+            }
+        }
+
+        throw new IllegalArgumentException("Argument count error, need:"
+                + Arrays.toString(count) + ",current is :" + current);
+
+    }
+
+    private void checkArgumentNot(String[] args, int... count) {
+        int current = 0;
+        if (args != null) {
+            current = args.length;
+        }
+
+        for (int i : count) {
+            if (i == current) {
+                throw new IllegalArgumentException("Argument count error, cannot resolve count:"
+                        + Arrays.toString(count) + ", now is:" + current);
+            }
+        }
+    }
+
+
 }

@@ -37,6 +37,7 @@ public class NetConnection {
     }
 
     public Socket connect() {
+
         InetAddress inetAddress = null;
 
         try {
@@ -49,8 +50,8 @@ public class NetConnection {
         }
 
         int port = ConnectionUtils.getAdbPort(pkgName);
-
         try {
+            System.out.println("Connect to " + pkgName + " @IP:" + ip + " @RemotePort:" + port);
             return new Socket(inetAddress, port);
         } catch (IOException e) {
             e.printStackTrace();

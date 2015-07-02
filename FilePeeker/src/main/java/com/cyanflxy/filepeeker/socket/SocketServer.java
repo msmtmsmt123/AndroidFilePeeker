@@ -43,23 +43,23 @@ public class SocketServer implements Runnable {
         try {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {
-            Log.w(TAG, "AdbServer Create Socket Exception.", e);
+            Log.w(TAG, "Server Create Socket Exception.", e);
             return;
         }
 
-        Log.i(TAG, "AdbServer Listen Socket @port:" + port);
+        Log.i(TAG, "Server Listen Socket @port:" + port);
 
         while (true) {
             Socket clientSocket;
             try {
                 clientSocket = serverSocket.accept();
-                Log.i(TAG, "AdbServer accept Socket @port:" + port);
+                Log.i(TAG, "Server accept Socket @port:" + port);
 
                 if (onSocketAcceptListener != null) {
                     onSocketAcceptListener.socketAccept(this, clientSocket);
                 }
             } catch (IOException e) {
-                Log.w(TAG, "AdbServer Listen Socket Exception", e);
+                Log.w(TAG, "Server Listen Socket Exception", e);
                 break;
             }
 

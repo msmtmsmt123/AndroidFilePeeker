@@ -174,4 +174,8 @@ public class FileUtils {
     public static String relativeName(File file) {
         return file.getAbsolutePath().substring(localFileDir.length());
     }
+
+    public static void put(String currentDir, String name, byte[] data) throws IOException {
+        File file = getFile(currentDir, name);
+    }
 }

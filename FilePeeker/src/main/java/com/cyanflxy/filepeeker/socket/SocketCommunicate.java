@@ -18,10 +18,10 @@ package com.cyanflxy.filepeeker.socket;
 
 import android.util.Log;
 
+import com.cyanflxy.filepeeker.CommandExecutor;
 import com.cyanflxy.filepeeker.bridge.Command;
 import com.cyanflxy.filepeeker.bridge.ConnectionUtils;
 import com.cyanflxy.filepeeker.bridge.Response;
-import com.cyanflxy.filepeeker.CommandExecutor;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -60,7 +60,7 @@ public class SocketCommunicate implements Runnable {
             Command command;
             try {
                 command = (Command) inputStream.readObject();
-                Log.i(TAG, "Receive:" + command.command);
+                Log.i(TAG, "Receive:" + command);
             } catch (EOFException e) {
                 // Socket Closed
                 break;

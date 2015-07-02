@@ -24,9 +24,8 @@ import java.net.Socket;
  * Created by CyanFlxy on 2015/6/24.
  */
 public class PeekFile {
-    public static void main(String[] args) {
 
-//        connectNet("192.168.1.8","com.cyanflxy.peekerdemo");
+    public static void main(String[] args) {
 
         if (args.length == 2 && "-adb".equals(args[0])) {
             connectAdb(args[1]);
@@ -38,6 +37,7 @@ public class PeekFile {
 
     }
 
+    // -adb com.cyanflxy.peekerdemo
     private static void connectAdb(String pkgName) {
         AdbConnection connect = new AdbConnection(pkgName);
         Socket socket = connect.connect();
@@ -45,6 +45,7 @@ public class PeekFile {
         communicate.start();
     }
 
+    // -net 192.168.1.8 com.cyanflxy.peekerdemo
     private static void connectNet(String ip, String pkgName) {
         NetConnection connect = new NetConnection(ip, pkgName);
         Socket socket = connect.connect();

@@ -26,16 +26,21 @@ import java.io.Serializable;
 public class Command implements Serializable {
     public static final long serialVersionUID = 1L;
 
-    public final String command;
-    public final String currentDir;
-
-    public Command(String cmd, String dir) {
-        command = cmd;
-        currentDir = dir;
-    }
+    public CommandType commandType;
+    public String[] args;
+    public String currentDir;
+    public Object data;
 
     @Override
     public String toString() {
-        return "Command:" + command + " dir:" + currentDir;
+        StringBuilder command = new StringBuilder();
+        command.append(commandType.name());
+        if (args != null) {
+            for (String s : args) {
+                command.append(s).append(" ");
+            }
+        }
+
+        return "Command:" + command.toString() + " dir:" + currentDir;
     }
 }

@@ -29,14 +29,25 @@ public class RemoteFile implements Serializable {
     private final String relativePath;
     private final String fileName;
     private final boolean isDirectory;
+    private final long lastModified;
+    private int subFileNumber;
 
-    public RemoteFile(File file, String relativePath) {
+    public RemoteFile(File file, String path) {
         fileName = file.getName();
         isDirectory = file.isDirectory();
-        this.relativePath = relativePath;
+        relativePath = path;
+
+        if (isDirectory) {
+            String[] subFiles = file.list();
+            if (subFiles != null) {
+                subFileNumber = subFiles.length;
+            }
+        }
+
+        lastModified = file.lastModified();
     }
 
-    public String getAbsolutePath() {
+    public String getPath() {
         return relativePath;
     }
 
@@ -52,11 +63,19 @@ public class RemoteFile implements Serializable {
         return isDirectory;
     }
 
+    public int getSubFileNumber() {
+        return subFileNumber;
+    }
+
+    public long getLastModified() {
+        return lastModified;
+    }
+
     @Override
     public String toString() {
         String type = isDirectory ? "<DIR>" : "<FILE>";
-        return String.format("%-10s %5s %-20s",
-                fileName, type, relativePath);
+        return String.format("%-10s %5s",
+                fileName, type);
     }
 
 }

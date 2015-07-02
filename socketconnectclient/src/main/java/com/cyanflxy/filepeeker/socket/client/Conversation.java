@@ -17,7 +17,9 @@
 package com.cyanflxy.filepeeker.socket.client;
 
 import com.cyanflxy.filepeeker.bridge.Command;
+import com.cyanflxy.filepeeker.bridge.CommandType;
 import com.cyanflxy.filepeeker.bridge.RemoteFile;
+import com.cyanflxy.filepeeker.bridge.RemoteFileData;
 import com.cyanflxy.filepeeker.bridge.Response;
 
 import java.io.EOFException;
@@ -64,7 +66,12 @@ public class Conversation {
                 break;
             }
 
-            executeCommand(cmd);
+            try {
+                Command command = createCommand(cmd);
+                executeCommand(command);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
 
         try {
@@ -90,15 +97,49 @@ public class Conversation {
 
             } while (System.in.available() > 0);
 
-            return sb.substring(0, sb.length() - 1);//去掉最后的回车键
+            return sb.substring(0, sb.length() - 1).trim();//去掉最后的回车键
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    private void executeCommand(String cmd) {
-        Command command = new Command(cmd, currentDir);
+    private Command createCommand(String cmd) throws IOException {
+        String[] args = cmd.split(" ");
+
+        CommandType type;
+        try {
+            type = CommandType.valueOf(args[0]);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Unknown Command! use 'help' check usage.");
+        }
+
+        Object data = null;
+        if (type == CommandType.put) {
+            if (args.length == 1) {
+                throw new IllegalArgumentException("Command Argument Error! use 'help' check usage.");
+            }
+
+            data = new RemoteFileData(args[1]);
+        }
+
+        Command command = new Command();
+        command.commandType = type;
+        command.currentDir = currentDir;
+
+        if (args.length > 1) {
+            int len = args.length - 1;
+            command.args = new String[len];
+            System.arraycopy(args, 1, command.args, 0, len);
+        }
+
+        command.data = data;
+
+        return command;
+
+    }
+
+    private void executeCommand(Command command) {
         try {
             mOutputStream.writeObject(command);
         } catch (IOException e) {
@@ -120,7 +161,7 @@ public class Conversation {
             } else {
                 parseResponse(response);
             }
-        }catch (EOFException e){
+        } catch (EOFException e) {
             System.err.println("Remote Socket is Closed!");
             System.exit(1);
         } catch (Exception e) {
@@ -130,7 +171,7 @@ public class Conversation {
     }
 
     public void parseResponse(Response response) {
-        switch (response.cmdType) {
+        switch (response.commandType) {
             case ls:
                 RemoteFile[] files = (RemoteFile[]) response.data;
                 for (RemoteFile f : files) {
@@ -145,6 +186,9 @@ public class Conversation {
                 break;
             case exit:
                 System.exit(0);
+                break;
+            default:
+                System.out.println(Response.getResponseCodeMessage(response.code));
                 break;
         }
     }
