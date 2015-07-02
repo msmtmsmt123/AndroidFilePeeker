@@ -73,9 +73,12 @@ public class RemoteFile implements Serializable {
 
     @Override
     public String toString() {
-        String type = isDirectory ? "<DIR>" : "<FILE>";
-        return String.format("%-10s %5s",
-                fileName, type);
+        String suffix = "<FILE>";
+        if (isDirectory) {
+            suffix = "<DIR>     " + subFileNumber + " files";
+        }
+        return String.format("%-10s %s",
+                fileName, suffix);
     }
 
 }

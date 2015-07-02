@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 
-import com.cyanflxy.filepeeker.FilePeeker;
 import com.cyanflxy.peekerdemo.R;
 
 public class MainActivity extends Activity implements View.OnClickListener {
@@ -45,4 +44,5 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 break;
         }
     }
+
 }

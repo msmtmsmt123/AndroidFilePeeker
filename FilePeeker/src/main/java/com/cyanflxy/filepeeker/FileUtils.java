@@ -17,9 +17,16 @@
 package com.cyanflxy.filepeeker;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.cyanflxy.filepeeker.bridge.RemoteFileData;
+import com.cyanflxy.filepeeker.bridge.SharedPrefData;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * 文件处理工具
@@ -28,9 +35,11 @@ import java.io.IOException;
  */
 public class FileUtils {
     public static String localFileDir;
+    public static Context context;
 
 
     public static void init(Context c) {
+        context = c.getApplicationContext();
         localFileDir = c.getFilesDir().getParent();
     }
 
@@ -102,7 +111,7 @@ public class FileUtils {
         return new File(dirFile, name);
     }
 
-    public static void create(String currentDir, String name) throws IOException {
+    public static File create(String currentDir, String name) throws IOException {
         File file = getFile(currentDir, name);
         if (file.exists()) {
             throw new IOException("Target file name is exist, Name:" + name);
@@ -111,9 +120,11 @@ public class FileUtils {
         if (!file.createNewFile()) {
             throw new IOException("File create failed for already exist, Name:" + name);
         }
+
+        return file;
     }
 
-    public static void mkdir(String currentDir, String name) throws IOException {
+    public static File mkdir(String currentDir, String name) throws IOException {
         File file = getFile(currentDir, name);
         if (file.exists()) {
             throw new IOException("Target file Name is Exist, Name:" + name);
@@ -122,6 +133,7 @@ public class FileUtils {
         if (!file.mkdirs()) {
             throw new IOException("Directory create failed for already exist, Name:" + name);
         }
+        return file;
     }
 
     public static void rm(String currentDir, String name) throws IOException {
@@ -176,6 +188,102 @@ public class FileUtils {
     }
 
     public static void put(String currentDir, String name, byte[] data) throws IOException {
-        File file = getFile(currentDir, name);
+        File file = create(currentDir, name);
+
+        FileOutputStream os = null;
+
+        try {
+            os = new FileOutputStream(file);
+            os.write(data);
+        } finally {
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+        }
+
     }
+
+    public static RemoteFileData get(String currentDir, String name) throws IOException {
+        File file = getFile(currentDir, name);
+        if (!file.exists()) {
+            throw new IOException("File Not exist:" + name);
+        }
+        return new RemoteFileData(file);
+    }
+
+    public static void mv(String currentDir, String oldName, String newName) throws IOException {
+        File file = getFile(currentDir, oldName);
+        if (!file.exists()) {
+            throw new IOException("File Not exist:" + oldName);
+        }
+
+        File newFile = getFile(currentDir, newName);
+        if (newFile.exists()) {
+            throw new IOException("File exist:" + newName);
+        }
+
+        if (!file.renameTo(newFile)) {
+            throw new IOException("File rename failed.");
+        }
+    }
+
+    public static SharedPrefData[] getSPContent(String currentDir, String name) throws IOException {
+        File file = getFile(currentDir, name);
+
+        if (!file.exists()) {
+            throw new IOException("File Not exist:" + name);
+        }
+
+        int index0 = name.indexOf("/");
+        if (index0 < 0) {
+            index0 = 0;
+        } else {
+            index0++;
+        }
+
+        int index1 = name.indexOf(".");
+        String spName = name.substring(index0, index1);
+
+        SharedPreferences sp = context.getSharedPreferences(spName, Context.MODE_PRIVATE);
+        Map<String, ?> map = sp.getAll();
+
+        if (map.size() == 0) {
+            throw new IOException("Empty preferences or invalid preferences.");
+        }
+
+        SharedPrefData[] data = new SharedPrefData[map.size()];
+
+        int index = 0;
+        for (String key : map.keySet()) {
+            data[index] = new SharedPrefData();
+            data[index].key = key;
+
+            Object o = map.get(key);
+            data[index].className = o.getClass().getSimpleName();
+            data[index].value = o;
+
+            index++;
+        }
+
+        return data;
+    }
+
+    public static String[][] getDatabaseContent(String currentDir, String name) throws IOException {
+        File file = getFile(currentDir, name);
+
+        if (!file.exists()) {
+            throw new IOException("File Not exist:" + name);
+        }
+
+        SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(file, null);
+
+//        Cursor cursor = db.
+
+        return new String[][]{{"hello", "Hello2"}, {"hello"}};
+    }
+
 }

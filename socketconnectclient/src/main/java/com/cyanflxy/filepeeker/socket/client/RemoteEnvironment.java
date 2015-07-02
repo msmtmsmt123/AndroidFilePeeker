@@ -14,4 +14,23 @@
  * limitations under the License.
  */
 
-include ':PeekerDemo', ':FilePeeker', ':PeekerUI', 'SocketConnectClient', 'ConnectionBridge', ':Test1', ':Test2', ':Test3'
+package com.cyanflxy.filepeeker.socket.client;
+
+/**
+ * Created on 2015/7/2.
+ */
+public class RemoteEnvironment {
+    private String currentDirectory;
+
+    public RemoteEnvironment(){
+        currentDirectory = "/";
+    }
+
+    public void setCurrentDirectory(String dir) {
+        currentDirectory = dir;
+    }
+
+    public String getCurrentDirectory() {
+        return currentDirectory;
+    }
+}

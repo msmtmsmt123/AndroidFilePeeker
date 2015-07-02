@@ -19,19 +19,27 @@ package com.cyanflxy.filepeeker.bridge;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * 远程设备上的文件数据
  * Created by CyanFlxy on 2015/6/30.
  */
-public class RemoteFileData {
+public class RemoteFileData  implements Serializable {
+
+    public static final long serialVersionUID = 1L;
 
     public int length;
     public String name;
     public byte[] data;
 
+
     public RemoteFileData(String filePath) throws IOException {
-        File file = new File(filePath);
+        this(new File(filePath));
+    }
+
+    public RemoteFileData(File file) throws IOException {
+
         if (file.length() > Integer.MAX_VALUE) {
             throw new IOException("File too large(larger than 2G).");
         }

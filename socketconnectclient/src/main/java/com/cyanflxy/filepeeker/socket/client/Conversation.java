@@ -17,9 +17,6 @@
 package com.cyanflxy.filepeeker.socket.client;
 
 import com.cyanflxy.filepeeker.bridge.Command;
-import com.cyanflxy.filepeeker.bridge.CommandType;
-import com.cyanflxy.filepeeker.bridge.RemoteFile;
-import com.cyanflxy.filepeeker.bridge.RemoteFileData;
 import com.cyanflxy.filepeeker.bridge.Response;
 
 import java.io.EOFException;
@@ -38,10 +35,15 @@ public class Conversation {
     private ObjectInputStream mInputStream;
     private ObjectOutputStream mOutputStream;
 
-    private String currentDir;
+    private ResponseParser responseParser;
+    private RemoteEnvironment remoteEnvironment;
+    private CommandCreator commandCreator;
 
     public Conversation(Socket socket) {
-        currentDir = "/";
+        responseParser = new ResponseParser();
+        remoteEnvironment = new RemoteEnvironment();
+        commandCreator = new CommandCreator();
+
         mSocket = socket;
         try {
             mOutputStream = new ObjectOutputStream(mSocket.getOutputStream());
@@ -56,7 +58,7 @@ public class Conversation {
 
     public void start() {
         while (true) {
-            System.out.print(currentDir + ">");
+            System.out.print(remoteEnvironment.getCurrentDirectory() + ">");
             String cmd = readCommandLineString();
             if (cmd == null || cmd.equals("")) {
                 continue;
@@ -67,7 +69,7 @@ public class Conversation {
             }
 
             try {
-                Command command = createCommand(cmd);
+                Command command = commandCreator.createCommand(cmd, remoteEnvironment);
                 executeCommand(command);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -104,41 +106,6 @@ public class Conversation {
         }
     }
 
-    private Command createCommand(String cmd) throws IOException {
-        String[] args = cmd.split(" ");
-
-        CommandType type;
-        try {
-            type = CommandType.valueOf(args[0]);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Unknown Command! use 'help' check usage.");
-        }
-
-        Object data = null;
-        if (type == CommandType.put) {
-            if (args.length == 1) {
-                throw new IllegalArgumentException("Command Argument Error! use 'help' check usage.");
-            }
-
-            data = new RemoteFileData(args[1]);
-        }
-
-        Command command = new Command();
-        command.commandType = type;
-        command.currentDir = currentDir;
-
-        if (args.length > 1) {
-            int len = args.length - 1;
-            command.args = new String[len];
-            System.arraycopy(args, 1, command.args, 0, len);
-        }
-
-        command.data = data;
-
-        return command;
-
-    }
-
     private void executeCommand(Command command) {
         try {
             mOutputStream.writeObject(command);
@@ -150,17 +117,7 @@ public class Conversation {
 
         try {
             Response response = (Response) mInputStream.readObject();
-
-            if (response.code != Response.CODE_SUCCESS) {
-                String msg = Response.getResponseCodeMessage(response.code);
-                System.out.println(msg);
-
-                if (response.data != null) {
-                    System.out.println(response.data);
-                }
-            } else {
-                parseResponse(response);
-            }
+            responseParser.parseResponse(response, remoteEnvironment);
         } catch (EOFException e) {
             System.err.println("Remote Socket is Closed!");
             System.exit(1);
@@ -170,26 +127,4 @@ public class Conversation {
         }
     }
 
-    public void parseResponse(Response response) {
-        switch (response.commandType) {
-            case ls:
-                RemoteFile[] files = (RemoteFile[]) response.data;
-                for (RemoteFile f : files) {
-                    System.out.println(f);
-                }
-                break;
-            case cd:
-                currentDir = (String) response.data;
-                break;
-            case help:
-                System.out.println(response.data);
-                break;
-            case exit:
-                System.exit(0);
-                break;
-            default:
-                System.out.println(Response.getResponseCodeMessage(response.code));
-                break;
-        }
-    }
 }

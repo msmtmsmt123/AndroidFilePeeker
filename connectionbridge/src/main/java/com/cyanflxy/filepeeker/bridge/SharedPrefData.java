@@ -14,4 +14,17 @@
  * limitations under the License.
  */
 
-include ':PeekerDemo', ':FilePeeker', ':PeekerUI', 'SocketConnectClient', 'ConnectionBridge', ':Test1', ':Test2', ':Test3'
+package com.cyanflxy.filepeeker.bridge;
+
+import java.io.Serializable;
+
+/**
+ * Created on 2015/7/3.
+ */
+public class SharedPrefData<T> implements Serializable {
+    public static final long serialVersionUID = 1L;
+
+    public String className;
+    public String key;
+    public T value;
+}

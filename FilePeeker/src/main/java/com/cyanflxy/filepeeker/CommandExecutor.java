@@ -21,18 +21,19 @@ import com.cyanflxy.filepeeker.bridge.CommandType;
 import com.cyanflxy.filepeeker.bridge.RemoteFile;
 import com.cyanflxy.filepeeker.bridge.RemoteFileData;
 import com.cyanflxy.filepeeker.bridge.Response;
+import com.cyanflxy.filepeeker.bridge.SharedPrefData;
+import com.cyanflxy.filepeeker.bridge.Utils;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 /**
  * 第二层，执行命令，返回结果
  * <p/>
  * Created by CyanFlxy on 2015/6/28.
  */
-@SuppressWarnings("unused")
+
 public class CommandExecutor {
 
     public Response executeCommand(Command command) {
@@ -71,8 +72,9 @@ public class CommandExecutor {
         return response;
     }
 
+    @SuppressWarnings("unused")//ReflectInvoke
     private Response cd(Command command) {
-        checkArgumentIs(command.args, 0, 1);
+        Utils.checkArgumentIs(command.args, 0, 1);
 
         Response response = new Response();
 
@@ -90,8 +92,9 @@ public class CommandExecutor {
         return response;
     }
 
+    @SuppressWarnings("unused")//ReflectInvoke
     private Response ls(Command command) {
-        checkArgumentIs(command.args, 0);
+        Utils.checkArgumentIs(command.args, 0);
 
         File[] files = FileUtils.listFile(command.currentDir);
         RemoteFile[] remoteFiles = new RemoteFile[files.length];
@@ -105,36 +108,41 @@ public class CommandExecutor {
         return response;
     }
 
+    @SuppressWarnings("unused")//ReflectInvoke
     private Response create(Command command) throws IOException {
-        checkArgumentIs(command.args, 1);
+        Utils.checkArgumentIs(command.args, 1);
 
         FileUtils.create(command.currentDir, command.args[0]);
         return new Response();
     }
 
+    @SuppressWarnings("unused")//ReflectInvoke
     private Response mkdir(Command command) throws IOException {
-        checkArgumentIs(command.args, 1);
+        Utils.checkArgumentIs(command.args, 1);
 
         FileUtils.mkdir(command.currentDir, command.args[0]);
         return new Response();
     }
 
+    @SuppressWarnings("unused")//ReflectInvoke
     private Response rm(Command command) throws IOException {
-        checkArgumentNot(command.args, 0);
+        Utils.checkArgumentIs(command.args, 1);
 
         FileUtils.rm(command.currentDir, command.args[0]);
         return new Response();
     }
 
+    @SuppressWarnings("unused")//ReflectInvoke
     private Response rmdir(Command command) throws IOException {
-        checkArgumentNot(command.args, 0);
+        Utils.checkArgumentIs(command.args, 1);
 
         FileUtils.rmdir(command.currentDir, command.args[0]);
         return new Response();
     }
 
+    @SuppressWarnings("unused")//ReflectInvoke
     private Response put(Command command) throws IOException {
-        checkArgumentIs(command.args, 1, 2);
+        Utils.checkArgumentIs(command.args, 1, 2);
 
         RemoteFileData remoteFileData = (RemoteFileData) command.data;
 
@@ -156,12 +164,76 @@ public class CommandExecutor {
         return new Response();
     }
 
+    @SuppressWarnings("unused")//ReflectInvoke
+    private Response get(Command command) throws IOException {
+        Utils.checkArgumentIs(command.args, 1, 2);
+
+        RemoteFileData data = FileUtils.get(command.currentDir, command.args[0]);
+
+        if (command.args.length == 2) {
+            data.name = command.args[1];
+        }
+
+        Response response = new Response();
+        response.data = data;
+        return response;
+    }
+
+    @SuppressWarnings("unused")//ReflectInvoke
+    private Response mv(Command command) throws IOException {
+        Utils.checkArgumentIs(command.args, 2);
+        FileUtils.mv(command.currentDir, command.args[0], command.args[1]);
+        return new Response();
+    }
+
+    @SuppressWarnings("unused")//ReflectInvoke
+    private Response cat(Command command) throws IOException {
+        Utils.checkArgumentIs(command.args, 1);
+
+        RemoteFileData data = FileUtils.get(command.currentDir, command.args[0]);
+
+        Response response = new Response();
+        response.data = new String(data.data);
+        return response;
+    }
+
+    @SuppressWarnings("unused")//ReflectInvoke
+    private Response cat_sp(Command command) throws IOException {
+        Utils.checkArgumentIs(command.args, 1);
+
+        SharedPrefData[] data = FileUtils.getSPContent(command.currentDir, command.args[0]);
+
+        Response response = new Response();
+        response.data = data;
+        return response;
+    }
+
+    @SuppressWarnings("unused")//ReflectInvoke
+    private Response cat_db(Command command) throws IOException {
+        Utils.checkArgumentIs(command.args, 1);
+
+        Object data = FileUtils.getDatabaseContent(command.currentDir, command.args[0]);
+
+        Response response = new Response();
+        response.data = data;
+        return response;
+
+    }
+
+    @SuppressWarnings("unused")//ReflectInvoke
     private Response help(Command command) {
-        checkArgumentIs(command.args, 0);
+        Utils.checkArgumentIs(command.args, 0);
 
         Response response = new Response();
         response.data = getHelpString();
         return response;
+    }
+
+    @SuppressWarnings("unused")//ReflectInvoke
+    private Response exit(Command command) {
+        Utils.checkArgumentIs(command.args, 0);
+
+        return new Response();
     }
 
     private Response unknownCommand() {
@@ -181,43 +253,5 @@ public class CommandExecutor {
 
         return sb.toString();
     }
-
-    private Response exit(Command command) {
-        checkArgumentIs(command.args, 0);
-
-        return new Response();
-    }
-
-    private void checkArgumentIs(String[] args, int... count) {
-        int current = 0;
-        if (args != null) {
-            current = args.length;
-        }
-
-        for (int i : count) {
-            if (i == current) {
-                return;
-            }
-        }
-
-        throw new IllegalArgumentException("Argument count error, need:"
-                + Arrays.toString(count) + ",current is :" + current);
-
-    }
-
-    private void checkArgumentNot(String[] args, int... count) {
-        int current = 0;
-        if (args != null) {
-            current = args.length;
-        }
-
-        for (int i : count) {
-            if (i == current) {
-                throw new IllegalArgumentException("Argument count error, cannot resolve count:"
-                        + Arrays.toString(count) + ", now is:" + current);
-            }
-        }
-    }
-
 
 }

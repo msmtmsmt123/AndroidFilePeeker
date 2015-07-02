@@ -31,4 +31,8 @@ proguard/
 .idea
 .DS_Store
 /captures
+*.iml
+/*/*.iml
 TodoList.txt
+/*/TodoList.txt
+/Test*

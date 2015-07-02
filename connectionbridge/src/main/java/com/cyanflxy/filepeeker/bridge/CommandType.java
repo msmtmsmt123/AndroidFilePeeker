@@ -21,16 +21,20 @@ package com.cyanflxy.filepeeker.bridge;
  * Created by CyanFlxy on 2015/6/29.
  */
 public enum CommandType {
-    ls("                         - show all files in current folder."),
-    cd(" [dir]                   - change to dir or root dir."),
-    mkdir(" <dir>                - make a new dir in current folder."),
-    create(" <file>              - make a new file in current folder."),
-    rm(" <file>                  - remove a file."),
-    rmdir(" <dir>                - remove a directory"),
-    put(" <local> [remote]       - put local file to remote path"),
-    get(" <remote> [local]       - get remote file to local path"),
-    help("                       - show this help message."),
-    exit("                       - exit this program.");
+    ls("                    - show all files in current folder."),
+    cd(" [dir]              - change to dir or root dir."),
+    mkdir(" <dir>           - make a new dir in current folder."),
+    create(" <file>         - make a new file in current folder."),
+    rm(" <file>             - remove a file."),
+    rmdir(" <dir>           - remove a directory"),
+    put(" <local> [remote]  - put local file to remote path"),
+    get(" <remote> [local]  - get remote file to local path"),
+    mv(" <old> <new>        - rename a file or directory"),
+    cat(" <filename>        - show file content"),
+    cat_sp(" <filename>     - show SharedPreference file content"),
+    cat_db(" <filename>     - show Database file content"),
+    help("                  - show this help message."),
+    exit("                  - exit this program.");
 
     public final String usage;
 
