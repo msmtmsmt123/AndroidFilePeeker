@@ -21,7 +21,6 @@ import com.cyanflxy.filepeeker.bridge.CommandType;
 import com.cyanflxy.filepeeker.bridge.RemoteFile;
 import com.cyanflxy.filepeeker.bridge.RemoteFileData;
 import com.cyanflxy.filepeeker.bridge.Response;
-import com.cyanflxy.filepeeker.bridge.SharedPrefData;
 import com.cyanflxy.filepeeker.bridge.Utils;
 
 import java.io.File;
@@ -73,7 +72,7 @@ public class CommandExecutor {
     }
 
     @SuppressWarnings("unused")//ReflectInvoke
-    private Response cd(Command command) {
+    private Response cd(Command command) throws Exception {
         Utils.checkArgumentIs(command.args, 0, 1);
 
         Response response = new Response();
@@ -85,7 +84,7 @@ public class CommandExecutor {
             if (FileUtils.validDir(dir)) {
                 response.data = dir;
             } else {
-                throw new IllegalArgumentException("directory not exits.");
+                throw new Exception("directory not exits.");
             }
         }
 
@@ -201,7 +200,7 @@ public class CommandExecutor {
     private Response cat_sp(Command command) throws IOException {
         Utils.checkArgumentIs(command.args, 1);
 
-        SharedPrefData[] data = FileUtils.getSPContent(command.currentDir, command.args[0]);
+        Object data = FileUtils.getSPContent(command.currentDir, command.args[0]);
 
         Response response = new Response();
         response.data = data;

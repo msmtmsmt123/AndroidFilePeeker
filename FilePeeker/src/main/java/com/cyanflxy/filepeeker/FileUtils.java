@@ -18,8 +18,10 @@ package com.cyanflxy.filepeeker;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.cyanflxy.filepeeker.bridge.DatabaseTable;
 import com.cyanflxy.filepeeker.bridge.RemoteFileData;
 import com.cyanflxy.filepeeker.bridge.SharedPrefData;
 
@@ -272,7 +274,7 @@ public class FileUtils {
         return data;
     }
 
-    public static String[][] getDatabaseContent(String currentDir, String name) throws IOException {
+    public static DatabaseTable[] getDatabaseContent(String currentDir, String name) throws IOException {
         File file = getFile(currentDir, name);
 
         if (!file.exists()) {
@@ -280,10 +282,61 @@ public class FileUtils {
         }
 
         SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(file, null);
+        String[] tables = getTableNames(db);
 
-//        Cursor cursor = db.
+        DatabaseTable[] tableData = new DatabaseTable[tables.length];
+        for (int i = 0; i < tables.length; i++) {
+            tableData[i] = getTableContent(db, tables[i]);
+        }
 
-        return new String[][]{{"hello", "Hello2"}, {"hello"}};
+        return tableData;
     }
 
+    private static String[] getTableNames(SQLiteDatabase db) {
+
+        Cursor cursor = db.rawQuery("select name from sqlite_master where type='table'", null);
+        String[] table = new String[cursor.getCount()];
+
+        if (cursor.moveToFirst()) {
+            int lineIndex = 0;
+            do {
+                table[lineIndex++] = cursor.getString(0);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+
+        return table;
+    }
+
+    private static DatabaseTable getTableContent(SQLiteDatabase db, String name) {
+        DatabaseTable table = new DatabaseTable();
+        table.tableName = name;
+
+        Cursor cursor = db.rawQuery("select * from " + name, null);
+
+        int col = cursor.getColumnCount();
+
+        table.tableTitle = new String[col];
+        for (int i = 0; i < col; i++) {
+            table.tableTitle[i] = cursor.getColumnName(i);
+        }
+
+        int line = cursor.getCount();
+        table.tableContent = new String[line][col];
+
+        if (cursor.moveToFirst()) {
+            int lineIndex = 0;
+            do {
+                for (int i = 0; i < col; i++) {
+                    table.tableContent[lineIndex][i] = cursor.getString(i);
+                }
+                lineIndex++;
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+
+        return table;
+    }
 }

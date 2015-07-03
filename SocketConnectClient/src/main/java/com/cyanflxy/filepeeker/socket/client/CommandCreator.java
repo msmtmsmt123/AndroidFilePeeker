@@ -62,7 +62,7 @@ public class CommandCreator {
 
         try {
             Method executor = CommandCreator.class.getDeclaredMethod(
-                    type.name(), args.getClass());
+                    type.name(), String[].class);
             return executor.invoke(this, new Object[]{args});
         } catch (NoSuchMethodException e) {
             // ignore

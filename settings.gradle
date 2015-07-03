@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-include ':PeekerDemo', ':FilePeeker', ':PeekerUI', 'SocketConnectClient', 'ConnectionBridge', ':Test1', ':Test2', ':Test3'
+include ':PeekerDemo', ':FilePeeker', ':PeekerUI', 'SocketConnectClient', 'ConnectionBridge'

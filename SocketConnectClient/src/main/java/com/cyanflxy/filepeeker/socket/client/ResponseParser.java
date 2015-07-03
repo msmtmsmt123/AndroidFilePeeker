@@ -16,6 +16,7 @@
 
 package com.cyanflxy.filepeeker.socket.client;
 
+import com.cyanflxy.filepeeker.bridge.DatabaseTable;
 import com.cyanflxy.filepeeker.bridge.RemoteFile;
 import com.cyanflxy.filepeeker.bridge.RemoteFileData;
 import com.cyanflxy.filepeeker.bridge.Response;
@@ -114,13 +115,9 @@ public class ResponseParser {
 
     @SuppressWarnings("unused")//ReflectInvoke
     private void cat_db(Response response, RemoteEnvironment environment) {
-        String[][] data = (String[][]) response.data;
-        for (String[] line : data) {
-            for (String s : line) {
-                System.out.print(s);
-                System.out.print("\t");
-            }
-            System.out.println();
+        DatabaseTable[] data = (DatabaseTable[]) response.data;
+        for (DatabaseTable table : data) {
+            table.print();
         }
     }
 
