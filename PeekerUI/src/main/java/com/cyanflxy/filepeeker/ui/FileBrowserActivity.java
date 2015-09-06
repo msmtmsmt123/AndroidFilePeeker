@@ -17,7 +17,12 @@
 package com.cyanflxy.filepeeker.ui;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,6 +33,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.cyanflxy.filepeeker.FilePeekerService;
 import com.cyanflxy.filepeeker.FileUtils;
 import com.cyanflxy.peekerui.R;
 
@@ -154,6 +160,28 @@ public class FileBrowserActivity extends Activity {
 
         addMenu();
         enter(ROOT_PATH);
+
+        Intent intent = new Intent(this, FilePeekerService.class);
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            System.out.println(name);
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            System.out.println(name);
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(connection);
     }
 
     @Override
@@ -220,7 +248,7 @@ public class FileBrowserActivity extends Activity {
 
     private void createFile(String fileName) {
         try {
-            FileUtils.create(mCurrentPath,fileName);
+            FileUtils.create(mCurrentPath, fileName);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -229,7 +257,7 @@ public class FileBrowserActivity extends Activity {
 
     private void createFolder(String folderName) {
         try {
-            FileUtils.mkdir(mCurrentPath,folderName);
+            FileUtils.mkdir(mCurrentPath, folderName);
         } catch (IOException e) {
             e.printStackTrace();
         }
